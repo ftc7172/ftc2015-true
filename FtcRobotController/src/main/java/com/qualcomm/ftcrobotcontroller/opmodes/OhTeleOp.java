@@ -1,4 +1,4 @@
-/* Copyright (c) 2014, 2015 Qualcomm Technologies Inc
+/* Copyright (c) 2014 Qualcomm Technologies Inc
 
 All rights reserved.
 
@@ -31,33 +31,63 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpModeManager;
-import com.qualcomm.robotcore.eventloop.opmode.OpModeRegister;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorController;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.Range;
 
-/**
- * Register Op Modes
- */
-public class FtcOpModeRegister implements OpModeRegister {
+public class OhTeleOp extends OpMode {
 
-  /**
-   * The Op Mode Manager will call this method when it wants a list of all
-   * available op modes. Add your op mode to the list to enable it.
-   *
-   * @param manager op mode manager
-   */
-  public void register(OpModeManager manager) {
+	DualPad gpads;
 
-    /*
-     * register your op modes here.
-     * The first parameter is the name of the op mode
-     * The second parameter is the op mode class property
-     *
-     * If two or more op modes are registered with the same name, the app will display an error.
-     */
+	DcMotor tiltMotor;
+	DcMotor extendMotor;
 
-    manager.register("NullOp", NullOp.class);
-    manager.register("EnTeleOp", EnTeleOp.class);
-    manager.register("OhTeleOp", OhTeleOp.class);
+	double tiltTarget = 0;
+	double tiltStall = 0;
 
-  }
+	public OhTeleOp() {
+	}
+
+	@Override
+	public void init() {
+		gpads = new DualPad();
+		tiltMotor = hardwareMap.dcMotor.get("tilt");
+		tiltMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
+		extendMotor = hardwareMap.dcMotor.get("extend");
+		extendMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
+	}
+
+	@Override
+	public void loop() {
+		gpads.setPads(gamepad1, gamepad2);
+		tiltArm();
+	}
+
+	public void tiltArm() {
+		double tiltPos = tiltMotor.getCurrentPosition();
+		tiltTarget += gpads.right_stick_y * 5;
+		if (gpads.a) tiltTarget = -1600;
+		if (gpads.shift_a) tiltTarget = -100;
+
+		telemetry.addData("tiltTarget", tiltTarget);
+		telemetry.addData("tiltPos", tiltPos);
+		telemetry.addData("tilt.isbusy", tiltMotor.isBusy());
+		if (tiltPos < tiltTarget - 50 || tiltPos > tiltTarget + 50) {
+			double tiltpower = Range.clip((tiltTarget - tiltPos) * 0.05, -0.2, 0.2);
+			tiltMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+			tiltMotor.setPower(tiltpower);
+		}
+		else {
+			tiltMotor.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+			tiltMotor.setPower(0.2);
+			tiltMotor.setTargetPosition((int)tiltTarget);
+		}
+	}
+
+	@Override
+	public void stop() {
+	}
+
 }
