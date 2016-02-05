@@ -42,10 +42,15 @@ public class OhTeleOp extends OpMode {
 	DualPad gpads;
 
 	DcMotor tiltMotor;
+	DcMotor panMotor;
 	DcMotor extendMotor;
 
 	double tiltTarget = 0;
-	double tiltStall = 0;
+	double panTarget = 0;
+
+	Servo intakeServo;
+
+	Toggle intakeToggle;
 
 	public OhTeleOp() {
 	}
@@ -54,18 +59,35 @@ public class OhTeleOp extends OpMode {
 	public void init() {
 		gpads = new DualPad();
 		tiltMotor = hardwareMap.dcMotor.get("tilt");
+		intakeServo = hardwareMap.servo.get("intake");
 		tiltMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
 		extendMotor = hardwareMap.dcMotor.get("extend");
 		extendMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
+		intakeToggle = new Toggle();
 	}
 
 	@Override
 	public void loop() {
 		gpads.setPads(gamepad1, gamepad2);
 		tiltArm();
+		//panArm();
+		intake();
+	}
+
+	public void intake(){
+		if(gpads.shift_x) intakeServo.setPosition(0);
+		else if(intakeToggle.onRelease(gpads.x))
+		{
+			intakeServo.setPosition(1);
+		}
+		else{
+			intakeServo.setPosition(0.5);
+		}
+
 	}
 
 	public void tiltArm() {
+		int PID_RANGE = 50;
 		double tiltPos = tiltMotor.getCurrentPosition();
 		tiltTarget += gpads.right_stick_y * 5;
 		if (gpads.a) tiltTarget = -1600;
@@ -73,9 +95,8 @@ public class OhTeleOp extends OpMode {
 
 		telemetry.addData("tiltTarget", tiltTarget);
 		telemetry.addData("tiltPos", tiltPos);
-		telemetry.addData("tilt.isbusy", tiltMotor.isBusy());
-		if (tiltPos < tiltTarget - 50 || tiltPos > tiltTarget + 50) {
-			double tiltpower = Range.clip((tiltTarget - tiltPos) * 0.05, -0.2, 0.2);
+		if (tiltPos < tiltTarget - PID_RANGE || tiltPos > tiltTarget + PID_RANGE) {
+			double tiltpower = Range.clip(tiltTarget - tiltPos, -0.2, 0.2);
 			tiltMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
 			tiltMotor.setPower(tiltpower);
 		}
@@ -83,6 +104,25 @@ public class OhTeleOp extends OpMode {
 			tiltMotor.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
 			tiltMotor.setPower(0.2);
 			tiltMotor.setTargetPosition((int)tiltTarget);
+		}
+	}
+
+	public void panArm() {
+		int PID_RANGE = 50;
+		double panPos = panMotor.getCurrentPosition();
+		panTarget += gpads.right_stick_x * 5;
+
+		telemetry.addData("panTarget", panTarget);
+		telemetry.addData("panPos", panPos);
+		if (panPos < panTarget - PID_RANGE || panPos > tiltTarget + PID_RANGE) {
+			double panpower = Range.clip(panTarget - panPos, -0.2, 0.2);
+			panMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+			panMotor.setPower(panpower);
+		}
+		else {
+			panMotor.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+			panMotor.setPower(0.2);
+			panMotor.setTargetPosition((int)panTarget);
 		}
 	}
 
