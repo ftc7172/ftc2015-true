@@ -57,7 +57,7 @@ public class EnTeleOp extends OpMode {
 	DcMotor rb;
 
 	Servo hopperServo;
-	Servo beltServo;
+	Servo rampServo;
 	Servo drawerServo;
 	Servo latchServo;
 
@@ -80,14 +80,16 @@ public class EnTeleOp extends OpMode {
 		drawerServo = hardwareMap.servo.get("drawer");
 		drawerServo.setPosition(0.5);
 
-		beltServo = hardwareMap.servo.get("belt");
-		beltServo.setPosition(0.5);
+		rampServo = hardwareMap.servo.get("belt");
+		rampServo.setPosition(0.5);
 
 		hopperServo = hardwareMap.servo.get("hopper");
 		hopperServo.setPosition(0.5);
 
 		latchServo = hardwareMap.servo.get("test");
 		latchServo.setPosition(0.5);
+
+
 
 		gpads = new DualPad();
 
@@ -229,13 +231,13 @@ public class EnTeleOp extends OpMode {
 	}
 	private void beltdrawer(){
 		if (gpads.dpad_left){
-			beltServo.setPosition(1);
+			rampServo.setPosition(1);
 		}
 		else if (gpads.dpad_right){
-			beltServo.setPosition(0);
+			rampServo.setPosition(0);
 		}
 		else {
-			beltServo.setPosition(0.5);
+			rampServo.setPosition(0.5);
 		}
 	}
 	private void drawer(){

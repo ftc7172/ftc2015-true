@@ -52,6 +52,12 @@ public class OhTeleOp extends OpMode {
 
 	Toggle intakeToggle;
 
+	DcMotor lf;
+	DcMotor lb;
+	DcMotor rf;
+	DcMotor rb;
+
+
 	public OhTeleOp() {
 	}
 
@@ -64,14 +70,40 @@ public class OhTeleOp extends OpMode {
 		extendMotor = hardwareMap.dcMotor.get("extend");
 		extendMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
 		intakeToggle = new Toggle();
+		lf = hardwareMap.dcMotor.get("lf");
+		lb = hardwareMap.dcMotor.get("lb");
+		rf = hardwareMap.dcMotor.get("rf");
+		rb = hardwareMap.dcMotor.get("rb");
+		rf.setDirection(DcMotor.Direction.REVERSE);
+		rb.setDirection(DcMotor.Direction.REVERSE);
 	}
 
 	@Override
 	public void loop() {
 		gpads.setPads(gamepad1, gamepad2);
 		tiltArm();
+		//extendArm();
 		//panArm();
 		intake();
+		drive();
+	}
+
+	private void drive(){
+		float throttle = -gpads.left_stick_y;
+		float direction = gpads.left_stick_x;
+
+		float right = throttle - direction;
+		float left = throttle + direction;
+
+		right = Range.clip(right, -1, 1);
+		left = Range.clip(left, -1, 1);
+
+		rf.setPower(right);
+		rb.setPower(right);
+		lf.setPower(left);
+		lb.setPower(left);
+
+
 	}
 
 	public void intake(){
@@ -107,6 +139,22 @@ public class OhTeleOp extends OpMode {
 		}
 	}
 
+	public void extendArm()
+	{
+		double extendRaw = extendMotor.getCurrentPosition();
+		double extendCmd = gamepad1.right_stick_x;
+
+		if(extendCmd != 0){
+			extendMotor.setTargetPosition(extendMotor.getCurrentPosition()+10);
+			return;
+		}
+		else{
+			extendMotor.setTargetPosition(extendMotor.getCurrentPosition());
+
+		}
+
+		telemetry.addData("extend",extendMotor.getCurrentPosition());
+	}
 	public void panArm() {
 		int PID_RANGE = 50;
 		double panPos = panMotor.getCurrentPosition();
