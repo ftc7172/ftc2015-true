@@ -40,7 +40,7 @@ import com.qualcomm.robotcore.util.Range;
 public class OhTeleOp extends OpMode {
 
 	DualPad gpads;
-
+	boolean blueTeam = false;
 	DcMotor tiltMotor;
 	DcMotor panMotor;
 	DcMotor extendMotor;
@@ -65,6 +65,7 @@ public class OhTeleOp extends OpMode {
 	public void init() {
 		gpads = new DualPad();
 		tiltMotor = hardwareMap.dcMotor.get("tilt");
+		tiltMotor.setDirection(DcMotor.Direction.REVERSE);
 		intakeServo = hardwareMap.servo.get("intake");
 		tiltMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
 		panMotor = hardwareMap.dcMotor.get("pan");
@@ -86,10 +87,17 @@ public class OhTeleOp extends OpMode {
 		gpads.setPads(gamepad1, gamepad2);
 		tiltArm();
 		extendArm();
-		//panArm();
+		panArm();
 		intake();
 		drive();
+		setColor();
+		presets();
 	}
+
+	private void setColor(){
+
+	}
+
 
 	private void drive(){
 		float throttle = -gpads.left_stick_y;
@@ -110,10 +118,10 @@ public class OhTeleOp extends OpMode {
 	}
 
 	public void intake(){
-		if(gpads.shift_x) intakeServo.setPosition(0);
-		else if(intakeToggle.onRelease(gpads.x))
+		if(gpads.shift_right_trigger > .5) intakeServo.setPosition(1);
+		else if(intakeToggle.onRelease(gpads.right_trigger > .5))
 		{
-			intakeServo.setPosition(1);
+			intakeServo.setPosition(0);
 		}
 		else{
 			intakeServo.setPosition(0.5);
@@ -121,12 +129,47 @@ public class OhTeleOp extends OpMode {
 
 	}
 
+	public void presets(){
+		if(gpads.y){
+			tiltTarget = 2800;
+			 panTarget = (blueTeam) ? -197 : 175;
+
+		}
+		if(gpads.shift_y){
+			tiltTarget = 3165;
+			panTarget = (blueTeam) ? -392: 392;
+		}
+		if(gpads.x){
+			tiltTarget = 2930;
+			panTarget = (blueTeam) ? 200 : -200;
+		}
+		if(gpads.b){
+			//mid zipline climber
+		}
+		if(gpads.a){
+			tiltTarget =  500;
+			panTarget = 0;
+		}
+		if(gpads.shift_a){
+			//
+		}
+		if(gpads.shift_x){
+			blueTeam = true;
+		}
+		if(gpads.shift_b){
+			blueTeam = false;
+		}
+
+	}
+
 	public void tiltArm() {
+
+
+
 		int PID_RANGE = 50;
 		double tiltPos = tiltMotor.getCurrentPosition();
-		tiltTarget += gpads.right_stick_y * 5;
-		if (gpads.a) tiltTarget = -1600;
-		if (gpads.shift_a) tiltTarget = -100;
+		tiltTarget -= gpads.right_stick_y * 5;
+
 		telemetry.addData("stickY", gamepad1.right_stick_y);
 		telemetry.addData("tiltTarget", tiltTarget);
 		telemetry.addData("tiltPos", tiltPos);
@@ -138,35 +181,37 @@ public class OhTeleOp extends OpMode {
 		else {
 			tiltMotor.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
 			tiltMotor.setPower(0.2);
-			tiltMotor.setTargetPosition((int)tiltTarget);
+			tiltMotor.setTargetPosition((int) tiltTarget);
 		}
 	}
 
 	public void extendArm()
 	{
 		double extendpower = 0;
-		if (gpads.shift_dpad_right) extendpower = 0.5;
-		if (gpads.shift_dpad_left) extendpower = -0.5;
+		if (gpads.dpad_up) extendpower = 0.5;
+		if (gpads.dpad_down) extendpower = -0.5;
+		extendMotor.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
 		extendMotor.setPower(extendpower);
 	}
 
 
 	public void panArm() {
-		int PID_RANGE = 5;
-		double panPos = panMotor.getCurrentPosition();
-		panTarget += gpads.right_stick_x * 5;
+		if(tiltMotor.getCurrentPosition() > 1000) {
+			int PID_RANGE = 100;
+			double panPos = panMotor.getCurrentPosition();
+			panTarget += gpads.right_stick_x * 5;
 
-		telemetry.addData("panTarget", panTarget);
-		telemetry.addData("panPos", panPos);
-		if (panPos < panTarget - PID_RANGE || panPos > tiltTarget + PID_RANGE) {
-			double panpower = Range.clip(panTarget - panPos, -0.2, 0.2);
-			panMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-			panMotor.setPower(panpower);
-		}
-		else {
-		//	panMotor.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-			panMotor.setPower(0);
-		//	panMotor.setTargetPosition((int)panTarget);
+			telemetry.addData("panTarget", panTarget);
+			telemetry.addData("panPos", panPos);
+			if (panPos < panTarget - PID_RANGE || panPos > panTarget + PID_RANGE) {
+				double panpower = Range.clip(panTarget - panPos, -0.5, 0.5);
+				panMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+				panMotor.setPower(panpower);
+			} else {
+				panMotor.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+				panMotor.setPower(0.6);
+				panMotor.setTargetPosition((int) panTarget);
+			}
 		}
 	}
 
