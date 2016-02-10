@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<Robot>
+    <MotorController name="Motor Controller 1" serialNumber="AL00VXJ8">
+        <Motor name="rf" port="1" />
+        <Motor name="rb" port="2" />
+    </MotorController>
+    <DeviceInterfaceModule name="Device Interface Module 1" serialNumber="AL00VDK3">
+        <Gyro name="gyro" port="0" />
+    </DeviceInterfaceModule>
+    <MotorController name="Motor Controller 2" serialNumber="AH00QJ42">
+        <Motor name="lb" port="1" />
+        <Motor name="lf" port="2" />
+    </MotorController>
+    <MotorController name="Motor Controller 3" serialNumber="AL00VXJ5">
+        <Motor name="pan" port="1" />
+    </MotorController>
+    <MotorController name="Motor Controller 4" serialNumber="AL00YD4Z">
+        <Motor name="extend" port="1" />
+        <Motor name="tilt" port="2" />
+    </MotorController>
+    <ServoController name="Servo Controller 5" serialNumber="AL00VDHJ">
+        <Servo name="intake" port="6" />
+    </ServoController>
+</Robot>
