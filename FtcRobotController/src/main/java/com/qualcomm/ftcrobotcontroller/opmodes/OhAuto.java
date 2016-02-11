@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.hardware.GyroSensor;
 
@@ -15,6 +16,7 @@ public class OhAuto extends LinearOpMode {
     DcMotor tiltMotor;
     DcMotor panMotor;
 
+    DualPad gpads;
 
     double tiltTarget = 0;
     double panTarget = 0;
@@ -31,6 +33,12 @@ public class OhAuto extends LinearOpMode {
     DcMotor rf;
     DcMotor rb;
 
+    TouchSensor rbswitch;
+    boolean blueTeam;
+
+    Toggle delayToggle;
+    int delaySeconds;
+
     OpticalDistanceSensor opD;
 
 
@@ -38,7 +46,7 @@ public class OhAuto extends LinearOpMode {
     }
 
     @Override
-        public void runOpMode() throws InterruptedException{
+    public void runOpMode() throws InterruptedException {
         tiltMotor = hardwareMap.dcMotor.get("tilt");
         tiltMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
         tiltMotor.setDirection(DcMotor.Direction.REVERSE);
@@ -55,10 +63,29 @@ public class OhAuto extends LinearOpMode {
         rf.setDirection(DcMotor.Direction.REVERSE);
         rf.setMode(DcMotorController.RunMode.RESET_ENCODERS);
         rb.setDirection(DcMotor.Direction.REVERSE);
+        gpads = new DualPad();
+        rbswitch = hardwareMap.touchSensor.get("rbswitch");
+        delayToggle = new Toggle();
+
         gyro.calibrate();
+        while (true) {
+            waitOneFullHardwareCycle();
+            gpads.setPads(gamepad1, gamepad2);
+            if (gpads.a) break;
+            delayToggle.onPress(gpads.b);
+
+            blueTeam = rbswitch.isPressed();
+            delaySeconds = (delayToggle.count % 7) * 5;
+
+            telemetry.addData("alliance", (blueTeam ? "blue" : "red"));
+            telemetry.addData("delay (B)", delaySeconds + " seconds");
+            telemetry.addData("gyro", gyro.isCalibrating() ? "not ready" : "ready");
+            telemetry.addData("ready (A)", "NO");
+        }
         while(gyro.isCalibrating()){
             waitOneFullHardwareCycle();
         }
+        telemetry.addData("ready (A)", "yes");
         waitForStart();
         extendMotor.setPowerFloat();
         drive(0, -.2, 4200);
