@@ -36,14 +36,25 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 
 public class OhTeleOp extends OpMode {
 
+	//Our gamepad wrapper class
 	DualPad gpads;
+
+	//The team we are on for the match. Defaults to Red.
 	boolean blueTeam = false;
+
 	DcMotor tiltMotor;
 	DcMotor panMotor;
 	DcMotor extendMotor;
+
+	//The extend zero-switch
+	TouchSensor armTouch;
+
+	//Sets the team color each match
+	TouchSensor rbSwitch;
 
 	double tiltTarget = 0;
 	double panTarget = 0;
@@ -74,32 +85,39 @@ public class OhTeleOp extends OpMode {
 		extendMotor = hardwareMap.dcMotor.get("extend");
 		extendMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
 		intakeToggle = new Toggle();
+		rbSwitch = hardwareMap.touchSensor.get("rbswitch");
+		armTouch = hardwareMap.touchSensor.get("ezero");
 		lf = hardwareMap.dcMotor.get("lf");
 		lb = hardwareMap.dcMotor.get("lb");
 		rf = hardwareMap.dcMotor.get("rf");
 		rb = hardwareMap.dcMotor.get("rb");
 		rf.setDirection(DcMotor.Direction.REVERSE);
 		rb.setDirection(DcMotor.Direction.REVERSE);
+		if(rbSwitch.isPressed()){
+			blueTeam = true;
+		}
+
 	}
 
 	@Override
 	public void loop() {
 		gpads.setPads(gamepad1, gamepad2);
+		presets();
+		telemetry.addData("Blue?", blueTeam);
 		tiltArm();
 		extendArm();
 		panArm();
 		intake();
 		drive();
-		setColor();
-		presets();
-	}
-
-	private void setColor(){
-
+		if(gpads.shift_a){
+			panMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
+			tiltMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
+		}
 	}
 
 
 	private void drive(){
+		//Driving is controlled by the left joystick
 		float throttle = -gpads.left_stick_y;
 		float direction = gpads.left_stick_x;
 
@@ -118,27 +136,32 @@ public class OhTeleOp extends OpMode {
 	}
 
 	public void intake(){
-		if(gpads.shift_right_trigger > .5) intakeServo.setPosition(1);
-		else if(intakeToggle.onRelease(gpads.right_trigger > .5))
-		{
-			intakeServo.setPosition(0);
-		}
-		else{
-			intakeServo.setPosition(0.5);
-		}
 
+		//The intake is toggled by the  trigger
+		double intakePos = 0.5;
+		if(intakeToggle.onRelease(gpads.right_trigger > .5))
+		{
+			//If the arm is in scoring position, run the intake in reverse
+			intakePos = (tiltMotor.getCurrentPosition() < 1600) ? 0 : 1;
+		}
+		intakeServo.setPosition(intakePos);
 	}
 
 	public void presets(){
+		//The Y button extends the arm to high basket scoring position
 		if(gpads.y){
 			tiltTarget = 2800;
 			 panTarget = (blueTeam) ? -197 : 175;
+			intakeToggle.onoff = false;
 
 		}
+		//Shift-Y extends the arm to mid basket scoring position
 		if(gpads.shift_y){
 			tiltTarget = 3165;
 			panTarget = (blueTeam) ? -392: 392;
+			intakeToggle.onoff = false;
 		}
+		//The X button extends the arm to High Zipline Climber position
 		if(gpads.x){
 			tiltTarget = 2930;
 			panTarget = (blueTeam) ? 200 : -200;
@@ -146,13 +169,16 @@ public class OhTeleOp extends OpMode {
 		if(gpads.b){
 			//mid zipline climber
 		}
+		//The A button returns the arm to driving position
 		if(gpads.a){
-			tiltTarget =  500;
+			tiltTarget =  400;
 			panTarget = 0;
+			intakeToggle.onoff = false;
 		}
 		if(gpads.shift_a){
-			//
+			//Sets 0 point
 		}
+		//Shift X and B (Blue and Red buttons) serve to change the team if the robot switch fails
 		if(gpads.shift_x){
 			blueTeam = true;
 		}
@@ -163,9 +189,7 @@ public class OhTeleOp extends OpMode {
 	}
 
 	public void tiltArm() {
-
-
-
+		//Arm tilt is controlled by the right joystick's Y value
 		int PID_RANGE = 50;
 		double tiltPos = tiltMotor.getCurrentPosition();
 		tiltTarget -= gpads.right_stick_y * 5;
@@ -173,7 +197,14 @@ public class OhTeleOp extends OpMode {
 		telemetry.addData("stickY", gamepad1.right_stick_y);
 		telemetry.addData("tiltTarget", tiltTarget);
 		telemetry.addData("tiltPos", tiltPos);
-		if (tiltPos < tiltTarget - PID_RANGE || tiltPos > tiltTarget + PID_RANGE) {
+
+		if (intakeToggle.isOnoff()&& tiltMotor.getCurrentPosition()<500){
+			tiltMotor.setPowerFloat();
+			tiltTarget = tiltMotor.getCurrentPosition();
+		}
+		//This statement prevents the arm from surpassing a certain speed while tilting
+		//which protects the robot in case of PID failure
+		else if (tiltPos < tiltTarget - PID_RANGE || tiltPos > tiltTarget + PID_RANGE) {
 			double tiltpower = Range.clip(tiltTarget - tiltPos, -0.2, 0.2);
 			tiltMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
 			tiltMotor.setPower(tiltpower);
@@ -187,6 +218,11 @@ public class OhTeleOp extends OpMode {
 
 	public void extendArm()
 	{
+		//Extension is controlled by up and down on the Dpad
+		if(armTouch.isPressed()){
+			extendMotor.setPower(0.5);
+			return;
+		}
 		double extendpower = 0;
 		if (gpads.dpad_up) extendpower = 0.5;
 		if (gpads.dpad_down) extendpower = -0.5;
@@ -196,20 +232,23 @@ public class OhTeleOp extends OpMode {
 
 
 	public void panArm() {
+		//Pan is controlled by right joystick X value
 		if(tiltMotor.getCurrentPosition() > 1000) {
-			int PID_RANGE = 100;
+			int PID_RANGE = 50;
 			double panPos = panMotor.getCurrentPosition();
-			panTarget += gpads.right_stick_x * 5;
+			panTarget += gpads.right_stick_x * -5;
 
 			telemetry.addData("panTarget", panTarget);
 			telemetry.addData("panPos", panPos);
+			//This statement prevents the arm from surpassing a certain speed while panning
+			//which protects the robot in case of PID failure
 			if (panPos < panTarget - PID_RANGE || panPos > panTarget + PID_RANGE) {
-				double panpower = Range.clip(panTarget - panPos, -0.5, 0.5);
+				double panpower = Range.clip(panTarget - panPos, -0.2, 0.2);
 				panMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
 				panMotor.setPower(panpower);
 			} else {
 				panMotor.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-				panMotor.setPower(0.6);
+				panMotor.setPower(0.2);
 				panMotor.setTargetPosition((int) panTarget);
 			}
 		}

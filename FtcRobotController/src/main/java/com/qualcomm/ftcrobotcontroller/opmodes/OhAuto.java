@@ -19,14 +19,10 @@ public class OhAuto extends LinearOpMode {
     DualPad gpads;
 
     double tiltTarget = 0;
-    double panTarget = 0;
-    double traveled = 0;
-    double pastPos = 0;
+
     GyroSensor gyro;
     DcMotor extendMotor;
-    Servo intakeServo;
 
-    Toggle intakeToggle;
 
     DcMotor lf;
     DcMotor lb;
@@ -85,39 +81,54 @@ public class OhAuto extends LinearOpMode {
         while(gyro.isCalibrating()){
             waitOneFullHardwareCycle();
         }
+        boolean score = true;
         telemetry.addData("ready (A)", "yes");
         waitForStart();
+        sleep(delaySeconds * 1000);
         extendMotor.setPowerFloat();
-        drive(0, -.2, 4200);
-        drive(-45, -.2, 7500);
-        drive(-80, -.2, 500);
-        climberScore();
-        /*
-        drive(0, .15, 50)
-        while(opD.getLightDetected() < "Red"){
-            drive(-30, .15, 10);
+        //This drives our robot to the beacon
+        if(blueTeam){
+            score = drive(0, -.5, 8600, 5);
+            score = drive(45, -.5, 15000, 10) && score;
+            score = drive(85, -.5, 4000, 5) && score;
+            drive(85, -.15, 6400, 3);
+            drive(85, .15, 400, 3);
         }
-        while(opD.getLightDetected < "white"){
-            drive(0, .15, 10);
+        else {
+            score = drive(0, -.5, 8500, 5);
+            score = drive(-45, -.5, 15000, 10) && score;
+            score = drive(-85, -.5, 4000, 5) && score;
+            drive(-85, -.15, 6400, 3);
+            drive(-85, .15, 400, 3);
         }
-        drive(-90, .15, 10);
-        lineFollow();
-        scoreClimbers();
-        */
+        //This positions the arm to score the climbers
+        if(score) climberScore();
 
         }
 
-    public void drive(double targetAngle, double throttle, double distance)throws InterruptedException{
-
-        int startPos = rf.getCurrentPosition();
-        while (Math.abs(rf.getCurrentPosition() - startPos) < distance) {
+    public boolean drive(double targetAngle, double throttle, double distance, double timeout)throws InterruptedException{
+        int startRPos = rf.getCurrentPosition();
+        int startLPos = lf.getCurrentPosition();
+        double startTime = time;
+        while (Math.abs(rf.getCurrentPosition() - startRPos) + Math.abs(lf.getCurrentPosition()-startLPos)< distance) {
+            if(time > startTime + timeout) {
+                break;
+            }
+            telemetry.addData("lf", lf.getCurrentPosition()-startLPos);
+            //The gyro sensor allows the robot to drive in a straight line regardless of debris
             double error = ((gyro.getHeading() > 180 ? gyro.getHeading() - 360 : gyro.getHeading()) - targetAngle) / (50.0);
             throttle = Range.clip(throttle, -1, 1);
             double right = throttle + error;
             double left = throttle - error;
+            if(throttle < 0) {
+                right = Range.clip(right, -1, 0);
+                left = Range.clip(left, -1, 0);
+            }
+            else{
+                right = Range.clip(right, -1, 1);
+                left = Range.clip(left, -1, 1);
+            }
 
-            right = Range.clip(right, -1, 0);
-            left = Range.clip(left, -1, 0);
             rf.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
             rb.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
             lf.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
@@ -129,10 +140,8 @@ public class OhAuto extends LinearOpMode {
             lb.setPower(left);
 
             telemetry.addData("rfpos", rf.getCurrentPosition());
-
             telemetry.addData("heading", gyro.getHeading());
             telemetry.addData("error", error);
-            //telemetry.addData("color", opD.getLightDetected());
             waitOneFullHardwareCycle();
         }
         rf.setPower(0);
@@ -140,19 +149,20 @@ public class OhAuto extends LinearOpMode {
         lf.setPower(0);
         lb.setPower(0);
         waitOneFullHardwareCycle();
+        return (time < startTime + timeout);
     }
 
 
     public void climberScore() throws InterruptedException{
-        tiltArm(1700);
-       // tiltArm(100);
+        tiltUpArm(1700);
+        sleep(1000);
+        tiltDownArm(300);
+        tiltMotor.setPowerFloat();
     }
 
-    public void tiltArm(double t) throws InterruptedException{
-        int PID_RANGE = 50;
+    public void tiltUpArm(double t) throws InterruptedException{
         tiltTarget = t;
         telemetry.addData("tiltTarget", tiltTarget);
-        //telemetry.addData("tiltPos", tiltPos);
         while(true) {
             double tiltPos = tiltMotor.getCurrentPosition();
             if (tiltPos > tiltTarget) {
@@ -167,21 +177,22 @@ public class OhAuto extends LinearOpMode {
         waitOneFullHardwareCycle();
     }
 
- /*   public void lineFollow(double lnColor) throws InterruptedException{
-        double i = 0;
-        while(true){
-            double light = opD.getLightDetected();
-            while(light < lnColor) {
-                i = 0;
-                drive(0, .15, 10);
-                light = opD.getLightDetected();
+    public void tiltDownArm(double t) throws InterruptedException {
+        tiltTarget = t;
+        telemetry.addData("tiltTarget", tiltTarget);
+        while (true) {
+            double tiltPos = tiltMotor.getCurrentPosition();
+            if (tiltPos < tiltTarget) {
+                break;
             }
-            i+= .1;
-            double d = Math.sin(i);
-            drive(d, .15, 10);
+            tiltMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+            tiltMotor.setPower(- .2);
+            waitOneFullHardwareCycle();
         }
-
+        tiltMotor.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        tiltMotor.setPower(0);
+        waitOneFullHardwareCycle();
     }
-*/
+
 
 }

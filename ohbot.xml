@@ -6,10 +6,12 @@
     </MotorController>
     <DeviceInterfaceModule name="Device Interface Module 1" serialNumber="AL00VDK3">
         <Gyro name="gyro" port="0" />
+        <TouchSensor name="ezero" port="0" />
+        <TouchSensor name="rbswitch" port="1" />
     </DeviceInterfaceModule>
     <MotorController name="Motor Controller 2" serialNumber="AH00QJ42">
-        <Motor name="lb" port="1" />
-        <Motor name="lf" port="2" />
+        <Motor name="lf" port="1" />
+        <Motor name="lb" port="2" />
     </MotorController>
     <MotorController name="Motor Controller 3" serialNumber="AL00VXJ5">
         <Motor name="pan" port="1" />
