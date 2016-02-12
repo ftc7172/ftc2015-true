@@ -49,6 +49,8 @@ public class OhTeleOp extends OpMode {
 	DcMotor tiltMotor;
 	DcMotor panMotor;
 	DcMotor extendMotor;
+	Servo rZip;
+	Servo bZip;
 
 	//The extend zero-switch
 	TouchSensor armTouch;
@@ -93,6 +95,8 @@ public class OhTeleOp extends OpMode {
 		rb = hardwareMap.dcMotor.get("rb");
 		rf.setDirection(DcMotor.Direction.REVERSE);
 		rb.setDirection(DcMotor.Direction.REVERSE);
+		rZip = hardwareMap.servo.get("rzip");
+		bZip= hardwareMap.servo.get("bzip");
 		if(rbSwitch.isPressed()){
 			blueTeam = true;
 		}
@@ -109,6 +113,7 @@ public class OhTeleOp extends OpMode {
 		panArm();
 		intake();
 		drive();
+		zipTriggers();
 		if(gpads.shift_a){
 			panMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
 			tiltMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
@@ -144,7 +149,25 @@ public class OhTeleOp extends OpMode {
 			//If the arm is in scoring position, run the intake in reverse
 			intakePos = (tiltMotor.getCurrentPosition() < 1600) ? 0 : 1;
 		}
+		if(gpads.right_bumper){
+			intakePos = 1;
+		}
 		intakeServo.setPosition(intakePos);
+	}
+
+	public void zipTriggers(){
+		if(gpads.dpad_left){
+			if(blueTeam){
+				bZip.setPosition(.9);
+			}
+			else{
+				rZip.setPosition(.1);
+			}
+		}
+		else {
+			bZip.setPosition(0);
+			rZip.setPosition(1);
+		}
 	}
 
 	public void presets(){
@@ -157,7 +180,7 @@ public class OhTeleOp extends OpMode {
 		}
 		//Shift-Y extends the arm to mid basket scoring position
 		if(gpads.shift_y){
-			tiltTarget = 3165;
+			tiltTarget = 3000;
 			panTarget = (blueTeam) ? -392: 392;
 			intakeToggle.onoff = false;
 		}
@@ -171,7 +194,7 @@ public class OhTeleOp extends OpMode {
 		}
 		//The A button returns the arm to driving position
 		if(gpads.a){
-			tiltTarget =  400;
+			tiltTarget =  300;
 			panTarget = 0;
 			intakeToggle.onoff = false;
 		}
@@ -233,15 +256,17 @@ public class OhTeleOp extends OpMode {
 
 	public void panArm() {
 		//Pan is controlled by right joystick X value
-		if(tiltMotor.getCurrentPosition() > 1000) {
-			int PID_RANGE = 50;
-			double panPos = panMotor.getCurrentPosition();
-			panTarget += gpads.right_stick_x * -5;
 
-			telemetry.addData("panTarget", panTarget);
-			telemetry.addData("panPos", panPos);
+		int PID_RANGE = 50;
+		double panPos = panMotor.getCurrentPosition();
+		panTarget += gpads.right_stick_x * -2;
+
+		telemetry.addData("panTarget", panTarget);
+		telemetry.addData("panPos", panPos);
+		if (tiltMotor.getCurrentPosition()>1000 || gpads.right_stick_x != 0) {
 			//This statement prevents the arm from surpassing a certain speed while panning
 			//which protects the robot in case of PID failure
+
 			if (panPos < panTarget - PID_RANGE || panPos > panTarget + PID_RANGE) {
 				double panpower = Range.clip(panTarget - panPos, -0.2, 0.2);
 				panMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);

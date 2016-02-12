@@ -21,6 +21,8 @@
         <Motor name="tilt" port="2" />
     </MotorController>
     <ServoController name="Servo Controller 5" serialNumber="AL00VDHJ">
+        <Servo name="bzip" port="4" />
+        <Servo name="rzip" port="5" />
         <Servo name="intake" port="6" />
     </ServoController>
 </Robot>

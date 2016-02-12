@@ -14,7 +14,7 @@ import com.qualcomm.robotcore.hardware.GyroSensor;
  */
 public class OhAuto extends LinearOpMode {
     DcMotor tiltMotor;
-    DcMotor panMotor;
+   // DcMotor panMotor;
 
     DualPad gpads;
 
@@ -22,6 +22,9 @@ public class OhAuto extends LinearOpMode {
 
     GyroSensor gyro;
     DcMotor extendMotor;
+    Servo rZip;
+    Servo bZip;
+    Servo intakeServo;
 
 
     DcMotor lf;
@@ -46,7 +49,7 @@ public class OhAuto extends LinearOpMode {
         tiltMotor = hardwareMap.dcMotor.get("tilt");
         tiltMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
         tiltMotor.setDirection(DcMotor.Direction.REVERSE);
-        panMotor = hardwareMap.dcMotor.get("pan");
+      //  panMotor = hardwareMap.dcMotor.get("pan");
         gyro = hardwareMap.gyroSensor.get("gyro");
         lf = hardwareMap.dcMotor.get("lf");
         lf.setMode(DcMotorController.RunMode.RESET_ENCODERS);
@@ -62,7 +65,12 @@ public class OhAuto extends LinearOpMode {
         gpads = new DualPad();
         rbswitch = hardwareMap.touchSensor.get("rbswitch");
         delayToggle = new Toggle();
-
+        rZip = hardwareMap.servo.get("rzip");
+        bZip = hardwareMap.servo.get("bzip");
+        intakeServo = hardwareMap.servo.get("intake");
+        bZip.setPosition(0);
+        rZip.setPosition(1);
+        intakeServo.setPosition(0.5);
         gyro.calibrate();
         while (true) {
             waitOneFullHardwareCycle();
