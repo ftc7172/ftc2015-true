@@ -70,6 +70,8 @@ public class OhTeleOp extends OpMode {
 	DcMotor rf;
 	DcMotor rb;
 
+	Toggle zipToggle;
+
 
 	public OhTeleOp() {
 	}
@@ -87,6 +89,7 @@ public class OhTeleOp extends OpMode {
 		extendMotor = hardwareMap.dcMotor.get("extend");
 		extendMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
 		intakeToggle = new Toggle();
+		zipToggle = new Toggle();
 		rbSwitch = hardwareMap.touchSensor.get("rbswitch");
 		armTouch = hardwareMap.touchSensor.get("ezero");
 		lf = hardwareMap.dcMotor.get("lf");
@@ -156,7 +159,7 @@ public class OhTeleOp extends OpMode {
 	}
 
 	public void zipTriggers(){
-		if(gpads.dpad_left){
+		if(zipToggle.onRelease(gpads.dpad_left)){
 			if(blueTeam){
 				bZip.setPosition(.9);
 			}
@@ -186,11 +189,13 @@ public class OhTeleOp extends OpMode {
 		}
 		//The X button extends the arm to High Zipline Climber position
 		if(gpads.x){
-			tiltTarget = 2930;
+			tiltTarget = 2830;
 			panTarget = (blueTeam) ? 200 : -200;
 		}
 		if(gpads.b){
-			//mid zipline climber
+			//Middle Zipline Climber
+			tiltTarget = 3120;
+			panTarget = (blueTeam) ? 490: -490;
 		}
 		//The A button returns the arm to driving position
 		if(gpads.a){
