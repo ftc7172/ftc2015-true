@@ -101,6 +101,8 @@ public class OhAuto extends LinearOpMode {
             score = drive(85, -.5, 4000, 5) && score;
             drive(85, -.15, 6400, 3);
             drive(85, .15, 400, 3);
+            if(score) climberScore();
+            drive(85, .15, 12800, 5);
         }
         else {
             score = drive(0, -.5, 8500, 5);
@@ -108,9 +110,12 @@ public class OhAuto extends LinearOpMode {
             score = drive(-85, -.5, 4000, 5) && score;
             drive(-85, -.15, 6400, 3);
             drive(-85, .15, 400, 3);
+            if(score) climberScore();
+            drive(-85, .15, 12800, 5);
         }
         //This positions the arm to score the climbers
-        if(score) climberScore();
+
+
 
         }
 
@@ -162,7 +167,7 @@ public class OhAuto extends LinearOpMode {
 
 
     public void climberScore() throws InterruptedException{
-        tiltUpArm(1700);
+        tiltUpArm(1750);
         sleep(1000);
         tiltDownArm(300);
         tiltMotor.setPowerFloat();

@@ -51,6 +51,8 @@ public class OhTeleOp extends OpMode {
 	DcMotor extendMotor;
 	Servo rZip;
 	Servo bZip;
+	Servo intakeL;
+
 
 	//The extend zero-switch
 	TouchSensor armTouch;
@@ -61,7 +63,7 @@ public class OhTeleOp extends OpMode {
 	double tiltTarget = 0;
 	double panTarget = 0;
 
-	Servo intakeServo;
+	Servo intakeR;
 
 	Toggle intakeToggle;
 
@@ -81,7 +83,8 @@ public class OhTeleOp extends OpMode {
 		gpads = new DualPad();
 		tiltMotor = hardwareMap.dcMotor.get("tilt");
 		tiltMotor.setDirection(DcMotor.Direction.REVERSE);
-		intakeServo = hardwareMap.servo.get("intake");
+		intakeR = hardwareMap.servo.get("intake");
+		intakeL = hardwareMap.servo.get("intake1");
 		tiltMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
 		panMotor = hardwareMap.dcMotor.get("pan");
 		panMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
@@ -146,16 +149,21 @@ public class OhTeleOp extends OpMode {
 	public void intake(){
 
 		//The intake is toggled by the  trigger
-		double intakePos = 0.5;
+		double intakePosL = 0.5;
+		double intakePosR = 0.5;
 		if(intakeToggle.onRelease(gpads.right_trigger > .5))
 		{
 			//If the arm is in scoring position, run the intake in reverse
-			intakePos = (tiltMotor.getCurrentPosition() < 1600) ? 0 : 1;
+			intakePosL = (tiltMotor.getCurrentPosition() < 1600) ? 1: 0;
+			intakePosR = (tiltMotor.getCurrentPosition() < 1600) ? 0 : 1;
 		}
 		if(gpads.right_bumper){
-			intakePos = 1;
+			intakePosL = 0;
+			intakePosR = 1;
 		}
-		intakeServo.setPosition(intakePos);
+		intakeR.setPosition(intakePosR);
+		intakeL.setPosition(intakePosL);
+
 	}
 
 	public void zipTriggers(){
