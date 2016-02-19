@@ -127,10 +127,12 @@ public class ArTeleop extends OpMode {
     }
 
 
-    private void drive(){
+    private void drive() {
+
         //Driving is controlled by the left joystick
         float throttle = -gpads.left_stick_y;
         float direction = gpads.left_stick_x * .5f;
+        double up = gpads.left_trigger * -0.5;
 
         double right = throttle - direction;
         double left = throttle + direction;
@@ -138,12 +140,25 @@ public class ArTeleop extends OpMode {
         right = Range.clip(right, -1, 1);
         left = Range.clip(left, -1, 1);
 
+        if (right == 0 && left == 0 && up<0){
+            lf.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+            lb.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+            rf.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+            rb.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+            right = up;
+            left = up;
+        }
+        else {
+            lf.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+            lb.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+            rf.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+            rb.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        }
 
         rf.setPower(right);
         rb.setPower(right);
         lf.setPower(left);
         lb.setPower(left);
-
 
     }
 
@@ -170,15 +185,15 @@ public class ArTeleop extends OpMode {
     public void zipTriggers(){
         if(zipToggle.onRelease(gpads.dpad_left)){
             if(blueTeam){
-                bZip.setPosition(.9);
+                bZip.setPosition(.8);
             }
             else{
-                rZip.setPosition(.1);
+                rZip.setPosition(.0);
             }
         }
         else {
-            bZip.setPosition(0);
-            rZip.setPosition(1);
+            bZip.setPosition(.25);
+            rZip.setPosition(.5);
         }
     }
 
