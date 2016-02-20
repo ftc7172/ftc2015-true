@@ -102,7 +102,9 @@ public class ArTeleop extends OpMode {
         rf.setDirection(DcMotor.Direction.REVERSE);
         rb.setDirection(DcMotor.Direction.REVERSE);
         rZip = hardwareMap.servo.get("rzip");
+        rZip.setPosition(.85);
         bZip= hardwareMap.servo.get("bzip");
+        bZip.setPosition(.12);
         if(rbSwitch.isPressed()){
             blueTeam = true;
         }
@@ -185,15 +187,15 @@ public class ArTeleop extends OpMode {
     public void zipTriggers(){
         if(zipToggle.onRelease(gpads.dpad_left)){
             if(blueTeam){
-                bZip.setPosition(.8);
+                bZip.setPosition(.73);
             }
             else{
-                rZip.setPosition(.0);
+                rZip.setPosition(.3);
             }
         }
         else {
-            bZip.setPosition(.25);
-            rZip.setPosition(.5);
+            bZip.setPosition(.12);
+            rZip.setPosition(0.85);
         }
     }
 
@@ -201,7 +203,7 @@ public class ArTeleop extends OpMode {
         //The Y button extends the arm to high basket scoring position
         if(gpads.y){
             tiltTarget = 2650;
-            panTarget = (blueTeam) ? -197 : 175;
+            panTarget = (blueTeam) ? -250 : 173;
             intakeToggle.onoff = false;
 
         }
@@ -213,7 +215,7 @@ public class ArTeleop extends OpMode {
         }
         //The X button extends the arm to High Zipline Climber position
         if(gpads.x){
-            tiltTarget = 2730;
+            tiltTarget = 2880;
             panTarget = (blueTeam) ? 200 : -200;
         }
         if(gpads.b){
@@ -271,14 +273,16 @@ public class ArTeleop extends OpMode {
     public void extendArm()
     {
         //Extension is controlled by up and down on the Dpad
+        extendMotor.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         if(armTouch.isPressed()){
+
             extendMotor.setPower(0.5);
             return;
         }
         double extendpower = 0;
         if (gpads.dpad_up) extendpower = 0.5;
         if (gpads.dpad_down) extendpower = -0.5;
-        extendMotor.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+
         extendMotor.setPower(extendpower);
     }
 
