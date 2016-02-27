@@ -45,6 +45,7 @@ public class ArAuto extends LinearOpMode {
     int delaySeconds;
 
 
+
     OpticalDistanceSensor opD;
 
 
@@ -76,7 +77,7 @@ public class ArAuto extends LinearOpMode {
         endP = new Toggle();
         rZip = hardwareMap.servo.get("rzip");
         bZip = hardwareMap.servo.get("bzip");
-
+        opD = hardwareMap.opticalDistanceSensor.get("opdist");
         intakeServo = hardwareMap.servo.get("intake");
         intakeL= hardwareMap.servo.get("intake1");
         bZip.setPosition(.12);
@@ -113,7 +114,9 @@ public class ArAuto extends LinearOpMode {
         waitForStart();
         sleep(delaySeconds * 1000);
         extendMotor.setPowerFloat();
+        drive(0, -.1, 15000, 30);
         //This drives our robot to the beacon
+        /*
         if(blueTeam){
             score = drive(0, -.35, 6300, 5);
             score = drive(45, -.35, 10000, 10) && score;
@@ -132,9 +135,10 @@ public class ArAuto extends LinearOpMode {
             if(score) climberScore();
             if(endPos == 1) drive(-85, .35, 11500, 5);
         }
+
         //This positions the arm to score the climbers
 
-
+    */
 
     }
 
@@ -144,6 +148,10 @@ public class ArAuto extends LinearOpMode {
         double startTime = time;
         while (Math.abs(rf.getCurrentPosition() - startRPos) + Math.abs(lf.getCurrentPosition()-startLPos)< distance) {
             if(time > startTime + timeout) {
+                break;
+            }
+            telemetry.addData("opD", opD.getLightDetectedRaw());
+            if(opD.getLightDetectedRaw() < 200 && opD.getLightDetectedRaw() > 50){
                 break;
             }
             telemetry.addData("lf", lf.getCurrentPosition()-startLPos);

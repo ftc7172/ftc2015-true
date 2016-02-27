@@ -34,6 +34,7 @@ package com.qualcomm.ftcrobotcontroller.opmodes;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
+import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.hardware.TouchSensor;
@@ -59,6 +60,8 @@ public class ArTeleop extends OpMode {
 
     //Sets the team color each match
     TouchSensor rbSwitch;
+
+    OpticalDistanceSensor opDist;
 
     double tiltTarget = 0;
     double panTarget = 0;
@@ -91,6 +94,7 @@ public class ArTeleop extends OpMode {
         panMotor.setDirection(DcMotor.Direction.REVERSE);
         extendMotor = hardwareMap.dcMotor.get("extend");
         extendMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
+        opDist = hardwareMap.opticalDistanceSensor.get("opdist");
         intakeToggle = new Toggle();
         zipToggle = new Toggle();
         rbSwitch = hardwareMap.touchSensor.get("rbswitch");
@@ -121,11 +125,16 @@ public class ArTeleop extends OpMode {
         panArm();
         intake();
         drive();
+        line();
         zipTriggers();
         if(gpads.shift_a){
             panMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
             tiltMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
         }
+    }
+
+    private void line(){
+        telemetry.addData("opDist: ", opDist.getLightDetectedRaw());
     }
 
 
@@ -187,14 +196,14 @@ public class ArTeleop extends OpMode {
     public void zipTriggers(){
         if(zipToggle.onRelease(gpads.dpad_left)){
             if(blueTeam){
-                bZip.setPosition(.73);
+                bZip.setPosition(.85);
             }
             else{
                 rZip.setPosition(.3);
             }
         }
         else {
-            bZip.setPosition(.12);
+            bZip.setPosition(.3);
             rZip.setPosition(0.85);
         }
     }
