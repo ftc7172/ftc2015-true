@@ -32,6 +32,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
@@ -61,7 +62,7 @@ public class ArTeleop extends OpMode {
     //Sets the team color each match
     TouchSensor rbSwitch;
 
-    OpticalDistanceSensor opDist;
+   // OpticalDistanceSensor opDist;
 
     double tiltTarget = 0;
     double panTarget = 0;
@@ -70,12 +71,22 @@ public class ArTeleop extends OpMode {
 
     Toggle intakeToggle;
 
+    DcMotor winchMotor;
+    double winchPower = 0.0;
+
     DcMotor lf;
     DcMotor lb;
     DcMotor rf;
     DcMotor rb;
 
+    Toggle fenderToggle;
+
     Toggle zipToggle;
+    BlinkM lblink;
+    AnalogInput dist;
+
+    Servo fenderl;
+    Servo fenderr;
 
 
     public ArTeleop() {
@@ -83,6 +94,7 @@ public class ArTeleop extends OpMode {
 
     @Override
     public void init() {
+        dist = hardwareMap.analogInput.get("dis");
         gpads = new DualPad();
         tiltMotor = hardwareMap.dcMotor.get("tilt");
         tiltMotor.setDirection(DcMotor.Direction.REVERSE);
@@ -94,11 +106,13 @@ public class ArTeleop extends OpMode {
         panMotor.setDirection(DcMotor.Direction.REVERSE);
         extendMotor = hardwareMap.dcMotor.get("extend");
         extendMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
-        opDist = hardwareMap.opticalDistanceSensor.get("opdist");
+        //opDist = hardwareMap.opticalDistanceSensor.get("opdist");
+        fenderToggle = new Toggle();
         intakeToggle = new Toggle();
         zipToggle = new Toggle();
         rbSwitch = hardwareMap.touchSensor.get("rbswitch");
         armTouch = hardwareMap.touchSensor.get("ezero");
+        winchMotor = hardwareMap.dcMotor.get("winch");
         lf = hardwareMap.dcMotor.get("lf");
         lb = hardwareMap.dcMotor.get("lb");
         rf = hardwareMap.dcMotor.get("rf");
@@ -109,6 +123,10 @@ public class ArTeleop extends OpMode {
         rZip.setPosition(.85);
         bZip= hardwareMap.servo.get("bzip");
         bZip.setPosition(.12);
+        fenderl = hardwareMap.servo.get("lfender");
+        fenderr = hardwareMap.servo.get("rfender");
+        lblink = new BlinkM(hardwareMap.i2cDevice.get("lblink"));
+        lblink.setRGB(0, 1, 0);
         if(rbSwitch.isPressed()){
             blueTeam = true;
         }
@@ -127,6 +145,8 @@ public class ArTeleop extends OpMode {
         drive();
         line();
         zipTriggers();
+        winch();
+        fender();
         if(gpads.shift_a){
             panMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
             tiltMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
@@ -134,7 +154,8 @@ public class ArTeleop extends OpMode {
     }
 
     private void line(){
-        telemetry.addData("opDist: ", opDist.getLightDetectedRaw());
+
+        telemetry.addData("Dist: ", dist.getValue());
     }
 
 
@@ -229,8 +250,7 @@ public class ArTeleop extends OpMode {
         }
         if(gpads.b){
             //Middle Zipline Climber
-            tiltTarget = 3120;
-            panTarget = (blueTeam) ? 490: -490;
+
         }
         //The A button returns the arm to driving position
         if(gpads.a){
@@ -262,6 +282,10 @@ public class ArTeleop extends OpMode {
         telemetry.addData("tiltPos", tiltPos);
 
         if (intakeToggle.isOnoff()&& tiltMotor.getCurrentPosition()<500){
+            tiltMotor.setPowerFloat();
+            tiltTarget = tiltMotor.getCurrentPosition();
+        }
+        else if(gpads.b){
             tiltMotor.setPowerFloat();
             tiltTarget = tiltMotor.getCurrentPosition();
         }
@@ -320,6 +344,27 @@ public class ArTeleop extends OpMode {
             }
         }
     }
+    public void winch() {
+        winchMotor.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        if (gamepad1.back) {
+            winchPower = 0.9;
+        }
+        else {
+            winchPower -= Range.clip(winchPower - 0.01, 0, 1);
+        }
+        winchMotor.setPower(winchPower);
+    }
+    public void fender() {
+        if (fenderToggle.onRelease(gpads.dpad_right)){
+            fenderl.setPosition(0.1);
+            fenderr.setPosition(0.9);
+        }
+        else {
+            fenderl.setPosition(1);
+            fenderr.setPosition(0);
+        }
+    }
+
 
     @Override
     public void stop() {
