@@ -14,17 +14,17 @@ public class SensorTest extends LinearOpMode {
 
     public void runOpMode() throws InterruptedException{
         OpticalDistanceSensor dist = hardwareMap.opticalDistanceSensor.get("dis");
-        ColorSensor color = hardwareMap.colorSensor.get("color");
-         color.enableLed(false);
+        ColorSensor rcolor = hardwareMap.colorSensor.get("color");
+         rcolor.enableLed(false);
         waitOneFullHardwareCycle();
       //  color.enableLed(true);
        // waitOneFullHardwareCycle();
         while(true) {
             telemetry.addData("OpDist: ", dist.getLightDetected());
-            telemetry.addData("Blue: ", color.blue());
-            telemetry.addData("Red: ", color.red());
-            telemetry.addData("Green: ", color.green());
-            telemetry.addData("address: ", color.getI2cAddress());
+            telemetry.addData("Blue: ", rcolor.blue());
+            telemetry.addData("Red: ", rcolor.red());
+            telemetry.addData("Green: ", rcolor.green());
+            telemetry.addData("address: ", rcolor.getI2cAddress());
             waitOneFullHardwareCycle();
         }
     }
