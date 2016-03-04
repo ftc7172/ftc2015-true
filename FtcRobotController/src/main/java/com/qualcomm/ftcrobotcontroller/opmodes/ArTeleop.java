@@ -36,6 +36,7 @@ import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.hardware.TouchSensor;
@@ -87,6 +88,7 @@ public class ArTeleop extends OpMode {
 
     Servo fenderl;
     Servo fenderr;
+    ColorSensor rcolor;
 
 
     public ArTeleop() {
@@ -94,6 +96,7 @@ public class ArTeleop extends OpMode {
 
     @Override
     public void init() {
+        rcolor = hardwareMap.colorSensor.get("rcolor");
         dist = hardwareMap.analogInput.get("dis");
         gpads = new DualPad();
         tiltMotor = hardwareMap.dcMotor.get("tilt");
@@ -154,7 +157,10 @@ public class ArTeleop extends OpMode {
     }
 
     private void line(){
-
+        telemetry.addData("red", rcolor.red());
+        telemetry.addData("blue", rcolor.blue());
+        telemetry.addData("green", rcolor.green());
+        telemetry.addData("alpha", rcolor.alpha());
         telemetry.addData("Dist: ", dist.getValue());
     }
 
