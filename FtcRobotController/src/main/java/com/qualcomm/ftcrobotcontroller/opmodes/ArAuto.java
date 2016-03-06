@@ -49,6 +49,7 @@ public class ArAuto extends LinearOpMode {
     int endPos;
     ColorSensor rcolor;
 
+
     Toggle delayToggle;
     int delaySeconds;
 
@@ -98,7 +99,7 @@ public class ArAuto extends LinearOpMode {
         rZip = hardwareMap.servo.get("rzip");
         bZip = hardwareMap.servo.get("bzip");
         opD = hardwareMap.opticalDistanceSensor.get("opdist");
-        opD.enableLed(false);
+        opD.enableLed(true);
         intakeServo = hardwareMap.servo.get("intake");
         intakeL= hardwareMap.servo.get("intake1");
         bZip.setPosition(.2);
@@ -150,27 +151,6 @@ public class ArAuto extends LinearOpMode {
             if(endPos == 1) drive(85, .35, 11500, 5, 9999);*/
         }
         else {
-            score = drive(0, -.35, 6800, 5, 9999, false);
-            score = drive(-43, -.35, 9500, 10, 9999, false) && score;
-            score = drive(-100, -.2, 5000, 5, 9999, true) && score;
-           // score = drive(0, -.35, 4500, 5, 9999, false);
-          //  score = drive(-45, -.35, 12000, 10, 400, true) && score;
-
-            fenderUp();
-            sleep(1000);
-            //score = drive(-25 -.2, 1000, 5, 380, 9999, false) && score;
-
-
-
-            drive(-87, -.1, 4200, 3, 9999, false);
-            drive(-87, .1, 200, 3, 9999, false);
-
-
-            if(score) climberScore();
-            if(endPos == 1) drive(-85, .35, 11500, 5, 9999, false);
-
-           // score = drive(0, -.35, 10000, 5, 9999, true);
-
         }
 
 
@@ -180,7 +160,7 @@ public class ArAuto extends LinearOpMode {
 
     }
 
-    public boolean drive(double targetAngle, double throttle, double distance, double timeout, double stopd, boolean colorStop)throws InterruptedException{
+    public boolean drive(double targetAngle, double throttle, double distance, double timeout, boolean colorStop)throws InterruptedException{
         int pastRPos = rb.getCurrentPosition();
         int pastLPos = lb.getCurrentPosition();
         double startTime = time;
@@ -189,31 +169,21 @@ public class ArAuto extends LinearOpMode {
             double heading = gyro.getHeading() > 180 ? gyro.getHeading() - 360: gyro.getHeading();
             double error = (heading) - targetAngle;
 
-           // if(Math.abs(error) < 2){
-                traveled -= Math.cos(error * Math.PI/180) * (Math.abs(rb.getCurrentPosition() - pastRPos) + Math.abs(lb.getCurrentPosition()-pastLPos));
-           // }
+            traveled -= Math.cos(error * Math.PI/180) * (Math.abs(rb.getCurrentPosition() - pastRPos) + Math.abs(lb.getCurrentPosition()-pastLPos));
 
             if (traveled <= 0 ){
-                    break;
-                }
+                break;
+            }
             pastRPos = rb.getCurrentPosition();
             pastLPos = lb.getCurrentPosition();
-            //lblink.setRGB(0, 1, 0);
-
-            if(dist.getValue() > stopd) break;
-
 
             telemetry.addData("Dist: ", dist.getValue());
             telemetry.addData("red", rcolor.red());
             telemetry.addData("blue", rcolor.blue());
             telemetry.addData("green", rcolor.green());
 
-            if(colorStop && rcolor.red() > 1 && rcolor.blue() > 1 && rcolor.green() > 1) break;
-            // telemetry.addData("opD", opD.getLightDetectedRaw());
-            //if(opD.getLightDetectedRaw() > 10){
-             //   break;
-          //  }
-           // telemetry.addData("lf", lf.getCurrentPosition() - pastLPos);
+            if(colorStop && rcolor.green()>5) break;
+
             //The gyro sensor allows the robot to drive in a straight line regardless of debris
 
             throttle = Range.clip(throttle, -1, 1);
@@ -247,9 +217,6 @@ public class ArAuto extends LinearOpMode {
             lf.setPower(left);
             lb.setPower(left);
 
-          //  telemetry.addData("rfpos", rf.getCurrentPosition());
-            //telemetry.addData("heading", gyro.getHeading());
-            //telemetry.addData("error", error);
             waitOneFullHardwareCycle();
 
 

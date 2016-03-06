@@ -63,7 +63,7 @@ public class ArTeleop extends OpMode {
     //Sets the team color each match
     TouchSensor rbSwitch;
 
-   // OpticalDistanceSensor opDist;
+   OpticalDistanceSensor opDist;
 
     double tiltTarget = 0;
     double panTarget = 0;
@@ -109,10 +109,23 @@ public class ArTeleop extends OpMode {
         panMotor.setDirection(DcMotor.Direction.REVERSE);
         extendMotor = hardwareMap.dcMotor.get("extend");
         extendMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
-        //opDist = hardwareMap.opticalDistanceSensor.get("opdist");
+        opDist = hardwareMap.opticalDistanceSensor.get("opdist");
+        opDist.enableLed(false);
         fenderToggle = new Toggle();
         intakeToggle = new Toggle();
         zipToggle = new Toggle();
+        rZip = hardwareMap.servo.get("rzip");
+        rZip.setPosition(.85);
+        bZip= hardwareMap.servo.get("bzip");
+        bZip.setPosition(.12);
+        intakeR.setPosition(.5);
+        intakeL.setPosition(.5);
+        fenderl = hardwareMap.servo.get("lfender");
+        fenderr = hardwareMap.servo.get("rfender");
+
+        fenderl.setPosition(fenderl.getPosition());
+        fenderr.setPosition(fenderr.getPosition());
+
         rbSwitch = hardwareMap.touchSensor.get("rbswitch");
         armTouch = hardwareMap.touchSensor.get("ezero");
         winchMotor = hardwareMap.dcMotor.get("winch");
@@ -122,12 +135,7 @@ public class ArTeleop extends OpMode {
         rb = hardwareMap.dcMotor.get("rb");
         rf.setDirection(DcMotor.Direction.REVERSE);
         rb.setDirection(DcMotor.Direction.REVERSE);
-        rZip = hardwareMap.servo.get("rzip");
-        rZip.setPosition(.85);
-        bZip= hardwareMap.servo.get("bzip");
-        bZip.setPosition(.12);
-        fenderl = hardwareMap.servo.get("lfender");
-        fenderr = hardwareMap.servo.get("rfender");
+
         lblink = new BlinkM(hardwareMap.i2cDevice.get("lblink"));
         lblink.setRGB(0, 1, 0);
         if(rbSwitch.isPressed()){
@@ -161,7 +169,7 @@ public class ArTeleop extends OpMode {
         telemetry.addData("blue", rcolor.blue());
         telemetry.addData("green", rcolor.green());
         telemetry.addData("alpha", rcolor.alpha());
-        telemetry.addData("Dist: ", dist.getValue());
+        telemetry.addData("Dist: ", opDist.getLightDetectedRaw());
     }
 
 
@@ -226,7 +234,7 @@ public class ArTeleop extends OpMode {
                 bZip.setPosition(.85);
             }
             else{
-                rZip.setPosition(.3);
+                rZip.setPosition(.25);
             }
         }
         else {
@@ -361,7 +369,7 @@ public class ArTeleop extends OpMode {
         winchMotor.setPower(winchPower);
     }
     public void fender() {
-        if (fenderToggle.onRelease(gpads.dpad_right)){
+        if (fenderToggle.onRelease(gpads.shift_dpad_right)){
             fenderl.setPosition(0.1);
             fenderr.setPosition(0.9);
         }
