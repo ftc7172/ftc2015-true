@@ -47,18 +47,21 @@ public class ArAuto extends LinearOpMode {
     boolean blueTeam;
     int startPos;
     int endPos;
+    ColorSensor fcolor;
     ColorSensor rcolor;
+    ColorSensor lcolor;
 
 
     Toggle delayToggle;
     int delaySeconds;
 
-
-    BlinkM lblink;
     OpticalDistanceSensor opD;
 
-
     public ArAuto() {
+    }
+
+    public int heading() {
+        return gyro.getHeading() > 180 ? gyro.getHeading() - 360: gyro.getHeading();
     }
 
     @Override
@@ -67,11 +70,22 @@ public class ArAuto extends LinearOpMode {
         fenderl = hardwareMap.servo.get("lfender");
         fenderr = hardwareMap.servo.get("rfender");
         fenderUp();
+        rZip = hardwareMap.servo.get("rzip");
+        bZip = hardwareMap.servo.get("bzip");
+        bZip.setPosition(.2);
+        rZip.setPosition(.85);
+        intakeServo = hardwareMap.servo.get("intake");
+        intakeL= hardwareMap.servo.get("intake1");
+        intakeServo.setPosition(0.5);
+        intakeL.setPosition(0.5);
+        waitOneFullHardwareCycle();
+
         tiltMotor = hardwareMap.dcMotor.get("tilt");
         tiltMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
         tiltMotor.setDirection(DcMotor.Direction.REVERSE);
         panMotor = hardwareMap.dcMotor.get("pan");
         panMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
+        panMotor.setDirection(DcMotor.Direction.REVERSE);
         gyro = hardwareMap.gyroSensor.get("gyro");
 
         lf = hardwareMap.dcMotor.get("lf");
@@ -86,31 +100,26 @@ public class ArAuto extends LinearOpMode {
         extendMotor = hardwareMap.dcMotor.get("extend");
         extendMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
 
-        lblink = new BlinkM(hardwareMap.i2cDevice.get("lblink"));
-        lblink.setRGB(0, 1, 0);
 
+        fcolor = hardwareMap.colorSensor.get("fcolor");
+        fcolor.enableLed(false);
+        lcolor = hardwareMap.colorSensor.get("lcolor");
+        lcolor.setI2cAddress(0x3a);
+        lcolor.enableLed(false);
         rcolor = hardwareMap.colorSensor.get("rcolor");
+        rcolor.setI2cAddress(0x3e);
         rcolor.enableLed(false);
         gpads = new DualPad();
         rbswitch = hardwareMap.touchSensor.get("rbswitch");
         delayToggle = new Toggle();
         startP = new Toggle();
         endP = new Toggle();
-        rZip = hardwareMap.servo.get("rzip");
-        bZip = hardwareMap.servo.get("bzip");
         opD = hardwareMap.opticalDistanceSensor.get("opdist");
         opD.enableLed(true);
-        intakeServo = hardwareMap.servo.get("intake");
-        intakeL= hardwareMap.servo.get("intake1");
-        bZip.setPosition(.2);
-        rZip.setPosition(.85);
-        intakeServo.setPosition(0.5);
-        intakeL.setPosition(0.5);
         waitOneFullHardwareCycle();
         gyro.calibrate();
         while (true) {
             waitOneFullHardwareCycle();
-            lblink.setRGB(0, 1, 0);
             gpads.setPads(gamepad1, gamepad2);
             if (gpads.a) break;
             delayToggle.onPress(gpads.b);
@@ -135,14 +144,20 @@ public class ArAuto extends LinearOpMode {
         boolean score = true;
         telemetry.addData("ready (A)", "yes");
         waitForStart();
-        lblink.setRGB(0, 1, 0);
         sleep(delaySeconds * 1000);
         extendMotor.setPowerFloat();
 
         //This drives our robot to the beacon
         fenderDown();
-        rcolor.enableLed(true);
+        fcolor.enableLed(true);
         if(blueTeam){
+            drive(0, -.20, 3200, 10, false);
+            drive(30, -.20, 11000, 10, false);
+            drive(100, -.1, 3200, 10, true);
+            drive(heading(),-.1,2400,10,false);
+            drive(90,-.15,100000,2,false);
+            drive(90,0.1,125,10,false);
+
            /* score = drive(0, -.35, 6800, 5, 9999);
             score = drive(45, -.35, 11000, 10, 9999) && score;
             score = drive(85, -.2, 2500, 5, 400) && score;
@@ -151,12 +166,17 @@ public class ArAuto extends LinearOpMode {
             if(endPos == 1) drive(85, .35, 11500, 5, 9999);*/
         }
         else {
+            drive(0, -.20, 3200, 10, false);
+            drive(-30, -.20, 11000, 10, false);
+            drive(-100, -.1, 3200, 10, true);
+            drive(heading(),-.1,2200,10,false);
+            drive(-85,-.15,100000,2,false);
+            drive(-85,0.1,125,10,false);
         }
 
+        climberScore();
 
         //This positions the arm to score the climbers
-
-
 
     }
 
@@ -177,18 +197,11 @@ public class ArAuto extends LinearOpMode {
             pastRPos = rb.getCurrentPosition();
             pastLPos = lb.getCurrentPosition();
 
-            telemetry.addData("Dist: ", dist.getValue());
-            telemetry.addData("red", rcolor.red());
-            telemetry.addData("blue", rcolor.blue());
-            telemetry.addData("green", rcolor.green());
-
-            if(colorStop && rcolor.green()>5) break;
-
-            //The gyro sensor allows the robot to drive in a straight line regardless of debris
+            if(colorStop && fcolor.green()>5) break;
 
             throttle = Range.clip(throttle, -1, 1);
-            double right = throttle + error * .02;
-            double left = throttle - error * .02;
+            double right = throttle + error * .018;
+            double left = throttle - error * .018;
             if(throttle < 0) {
                 right = Range.clip(right, Math.max(2*throttle, -1), 0);
                 left = Range.clip(left, Math.max(2*throttle, -1), 0);
@@ -208,19 +221,15 @@ public class ArAuto extends LinearOpMode {
                 rb.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
                 lf.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
                 lb.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-
             }
-
 
             rf.setPower(right);
             rb.setPower(right);
             lf.setPower(left);
             lb.setPower(left);
-
             waitOneFullHardwareCycle();
-
-
         }
+
         rf.setPower(0);
         rb.setPower(0);
         lf.setPower(0);
@@ -241,37 +250,22 @@ public class ArAuto extends LinearOpMode {
         fenderr.setPosition(.05);
     }
 
-    public void beacon() throws InterruptedException {
-        if(rcolor.red() > rcolor.blue()){
-            if(blueTeam){
-                panLeft(300);
-                sleep(500);
-                panRight(0);
-            }
-            else{
-                panRight(-300);
-                sleep(500);
-                panLeft(0);
-            }
-        }
-        else if(rcolor.blue() > rcolor.red()){
-            if(blueTeam){
-                panRight(-300);
-                sleep(500);
-                panLeft(0);
-            }
-            else{
-                panLeft(300);
-                sleep(500);
-                panRight(0);
-            }
-        }
-    }
-
     public void climberScore() throws InterruptedException{
         tiltUpArm(1690);
         sleep(1000);
-        beacon();
+        telemetry.addData("lcolor.red", lcolor.red());
+        telemetry.addData("lcolor.blue", lcolor.blue());
+        telemetry.addData("rcolor.red", rcolor.red());
+        telemetry.addData("rcolor.blue", rcolor.blue());
+
+//        if ( (blueTeam && rcolor.blue()>rcolor.red())
+//                || (!blueTeam && rcolor.red()>rcolor.blue())) {
+            panRight(-200);
+            drive(heading(), -0.15, 250, 3, false);
+            sleep(1000);
+            drive(heading(), 0.15, 500, 3, false);
+            panLeft(0);
+//        }
         tiltDownArm(300);
         tiltMotor.setPowerFloat();
     }
@@ -310,50 +304,37 @@ public class ArAuto extends LinearOpMode {
         waitOneFullHardwareCycle();
     }
 
-    public void panRight(int t) throws InterruptedException {
-        //Pan is controlled by right joystick X value
-
-        int PID_RANGE = 50;
+    public void panRight(int panTarget) throws InterruptedException {
         double panPos = panMotor.getCurrentPosition();
-        double panTarget = t;
 
-
+        panMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
         while(true) {
             panPos = panMotor.getCurrentPosition();
             if (panPos < panTarget) {
                 break;
             }
-            panMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
             panMotor.setPower(-.18);
             waitOneFullHardwareCycle();
         }
         panMotor.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         panMotor.setPower(0);
         waitOneFullHardwareCycle();
-
     }
 
-    public void panLeft(int t) throws InterruptedException {
-        //Pan is controlled by right joystick X value
-
-        int PID_RANGE = 50;
+    public void panLeft(int panTarget) throws InterruptedException {
         double panPos = panMotor.getCurrentPosition();
-        double panTarget = t ;
 
+        panMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
         while(true) {
             panPos = panMotor.getCurrentPosition();
             if (panPos > panTarget) {
                 break;
             }
-            panMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-            panMotor.setPower(.18);
+            panMotor.setPower(0.18);
             waitOneFullHardwareCycle();
         }
-        panMotor.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         panMotor.setPower(0);
         waitOneFullHardwareCycle();
-
     }
-
 
 }

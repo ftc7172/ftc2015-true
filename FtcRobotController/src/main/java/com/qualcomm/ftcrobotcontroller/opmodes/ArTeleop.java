@@ -83,12 +83,11 @@ public class ArTeleop extends OpMode {
     Toggle fenderToggle;
 
     Toggle zipToggle;
-    BlinkM lblink;
     AnalogInput dist;
 
     Servo fenderl;
     Servo fenderr;
-    ColorSensor rcolor;
+    ColorSensor fcolor;
 
 
     public ArTeleop() {
@@ -96,7 +95,7 @@ public class ArTeleop extends OpMode {
 
     @Override
     public void init() {
-        rcolor = hardwareMap.colorSensor.get("rcolor");
+        fcolor = hardwareMap.colorSensor.get("fcolor");
         dist = hardwareMap.analogInput.get("dis");
         gpads = new DualPad();
         tiltMotor = hardwareMap.dcMotor.get("tilt");
@@ -136,8 +135,6 @@ public class ArTeleop extends OpMode {
         rf.setDirection(DcMotor.Direction.REVERSE);
         rb.setDirection(DcMotor.Direction.REVERSE);
 
-        lblink = new BlinkM(hardwareMap.i2cDevice.get("lblink"));
-        lblink.setRGB(0, 1, 0);
         if(rbSwitch.isPressed()){
             blueTeam = true;
         }
@@ -165,10 +162,10 @@ public class ArTeleop extends OpMode {
     }
 
     private void line(){
-        telemetry.addData("red", rcolor.red());
-        telemetry.addData("blue", rcolor.blue());
-        telemetry.addData("green", rcolor.green());
-        telemetry.addData("alpha", rcolor.alpha());
+        telemetry.addData("red", fcolor.red());
+        telemetry.addData("blue", fcolor.blue());
+        telemetry.addData("green", fcolor.green());
+        telemetry.addData("alpha", fcolor.alpha());
         telemetry.addData("Dist: ", opDist.getLightDetectedRaw());
     }
 
