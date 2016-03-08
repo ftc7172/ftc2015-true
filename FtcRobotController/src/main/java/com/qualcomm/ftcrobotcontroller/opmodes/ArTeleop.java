@@ -95,13 +95,24 @@ public class ArTeleop extends OpMode {
 
     @Override
     public void init() {
+        // initialize servos first
+        rZip = hardwareMap.servo.get("rzip");
+        rZip.setPosition(Arbot.RZIP_UP);
+        bZip= hardwareMap.servo.get("bzip");
+        bZip.setPosition(Arbot.BZIP_UP);
+        intakeR = hardwareMap.servo.get("intake");
+        intakeR.setPosition(.5);
+        intakeL = hardwareMap.servo.get("intake1");
+        intakeL.setPosition(.5);
+        fenderl = hardwareMap.servo.get("lfender");
+        fenderr = hardwareMap.servo.get("rfender");
+        // leave fenders alone until play is pressed
+
         fcolor = hardwareMap.colorSensor.get("fcolor");
         dist = hardwareMap.analogInput.get("dis");
         gpads = new DualPad();
         tiltMotor = hardwareMap.dcMotor.get("tilt");
         tiltMotor.setDirection(DcMotor.Direction.REVERSE);
-        intakeR = hardwareMap.servo.get("intake");
-        intakeL = hardwareMap.servo.get("intake1");
         tiltMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
         panMotor = hardwareMap.dcMotor.get("pan");
         panMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
@@ -113,17 +124,6 @@ public class ArTeleop extends OpMode {
         fenderToggle = new Toggle();
         intakeToggle = new Toggle();
         zipToggle = new Toggle();
-        rZip = hardwareMap.servo.get("rzip");
-        rZip.setPosition(.85);
-        bZip= hardwareMap.servo.get("bzip");
-        bZip.setPosition(.12);
-        intakeR.setPosition(.5);
-        intakeL.setPosition(.5);
-        fenderl = hardwareMap.servo.get("lfender");
-        fenderr = hardwareMap.servo.get("rfender");
-
-        fenderl.setPosition(fenderl.getPosition());
-        fenderr.setPosition(fenderr.getPosition());
 
         rbSwitch = hardwareMap.touchSensor.get("rbswitch");
         armTouch = hardwareMap.touchSensor.get("ezero");
@@ -228,15 +228,15 @@ public class ArTeleop extends OpMode {
     public void zipTriggers(){
         if(zipToggle.onRelease(gpads.dpad_left)){
             if(blueTeam){
-                bZip.setPosition(.85);
+                bZip.setPosition(Arbot.BZIP_DOWN);
             }
             else{
-                rZip.setPosition(.25);
+                rZip.setPosition(Arbot.RZIP_DOWN);
             }
         }
         else {
-            bZip.setPosition(.3);
-            rZip.setPosition(0.85);
+            bZip.setPosition(Arbot.BZIP_UP);
+            rZip.setPosition(Arbot.RZIP_UP);
         }
     }
 
@@ -271,6 +271,11 @@ public class ArTeleop extends OpMode {
         }
         if(gpads.shift_a){
             //Sets 0 point
+        }
+        if(gpads.shift_dpad_up){
+            //High Zone Parking
+            tiltTarget = 2600;
+            panTarget = 0;
         }
         //Shift X and B (Blue and Red buttons) serve to change the team if the robot switch fails
         if(gpads.shift_x){
@@ -367,12 +372,12 @@ public class ArTeleop extends OpMode {
     }
     public void fender() {
         if (fenderToggle.onRelease(gpads.shift_dpad_right)){
-            fenderl.setPosition(0.1);
-            fenderr.setPosition(0.9);
+            fenderl.setPosition(Arbot.LFENDER_DOWN);
+            fenderr.setPosition(Arbot.RFENDER_DOWN);
         }
         else {
-            fenderl.setPosition(1);
-            fenderr.setPosition(0);
+            fenderl.setPosition(Arbot.LFENDER_UP);
+            fenderr.setPosition(Arbot.RFENDER_UP);
         }
     }
 
