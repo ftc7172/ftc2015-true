@@ -152,10 +152,10 @@ public class ArAuto extends LinearOpMode {
         fenderDown();
         fcolor.enableLed(true);
         if(blueTeam){
-            drive(0, -.20, 3200, 10, false);
-            drive(30, -.20, 14000, 10, false);
+            drive(0, -.30, 3200, 10, false);
+            drive(30, -.30, 14000, 10, false);
             sleep(500);
-            drive(30, .20, 2500, 10, false);
+            drive(30, .30, 2500, 10, false);
             drive(100, -.10, 3200, 10, true);
             fenderUp();
             sleep(500);
