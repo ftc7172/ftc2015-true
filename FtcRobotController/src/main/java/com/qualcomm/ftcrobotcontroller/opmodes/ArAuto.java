@@ -173,9 +173,8 @@ public class ArAuto extends LinearOpMode {
             sleep(500);
             drive(heading(),-.12,2100,10,false);
             drive(-86,0.1,500,10,false);
-            sleep(5000);
             drive(-86,-0.1,10000,3,false);
-            drive(-86,0.1,125,10,false);
+            drive(-86,0.1,200,10,false);
         }
 
         climberScore();
