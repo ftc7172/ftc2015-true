@@ -127,7 +127,7 @@ public class ArAuto extends LinearOpMode {
             startP.onPress(gpads.y);
 
             blueTeam = rbswitch.isPressed();
-            delaySeconds = (delayToggle.count % 7) * 5;
+            delaySeconds = (delayToggle.count % 16) * 2;
             startPos = startP.count % 2;
             endPos = endP.count % 2;
 

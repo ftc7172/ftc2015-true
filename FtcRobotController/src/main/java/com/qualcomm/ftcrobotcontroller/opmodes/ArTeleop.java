@@ -49,6 +49,8 @@ public class ArTeleop extends OpMode {
     //The team we are on for the match. Defaults to Red.
     boolean blueTeam = false;
 
+    boolean ezero = true;
+
     DcMotor tiltMotor;
     DcMotor panMotor;
     DcMotor extendMotor;
@@ -322,15 +324,19 @@ public class ArTeleop extends OpMode {
     public void extendArm()
     {
         //Extension is controlled by up and down on the Dpad
+        double extendpower = 0;
         extendMotor.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-        if(armTouch.isPressed()){
+        if(gpads.shift_dpad_down){
+            extendpower = -0.5;
+            ezero = false;
+        }
+        if(ezero && armTouch.isPressed()){
 
             extendMotor.setPower(0.5);
             return;
         }
-        double extendpower = 0;
-        if (gpads.dpad_up) extendpower = 0.5;
-        if (gpads.dpad_down) extendpower = -0.5;
+        if (gpads.dpad_up) {extendpower = 0.5; ezero = true;}
+        if (gpads.dpad_down) {extendpower = -0.5; ezero = true;}
 
         extendMotor.setPower(extendpower);
     }
