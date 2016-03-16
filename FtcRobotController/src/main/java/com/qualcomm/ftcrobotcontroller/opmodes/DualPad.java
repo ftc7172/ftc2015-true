@@ -19,6 +19,8 @@ public class DualPad {
     boolean dpad_down;
     boolean left_bumper;
     boolean right_bumper;
+    boolean left_trigger_enable = false;
+    boolean right_trigger_enable = false;
     float left_stick_x;
     float left_stick_y;
     float right_stick_x;
@@ -44,6 +46,14 @@ public class DualPad {
     float shift_right_trigger;
 
     public void setPads(Gamepad gamepad1, Gamepad gamepad2) {
+
+        if (gamepad1.left_trigger != .5 && gamepad2.left_trigger != .5){
+            left_trigger_enable = true;
+        }
+        if (gamepad1.right_trigger != .5 && gamepad2.right_trigger != .5){
+            right_trigger_enable = true;
+        }
+
         shift1 = gamepad1.left_bumper;
         shift2 = gamepad2.left_bumper;
 
@@ -79,10 +89,10 @@ public class DualPad {
 
         left_stick_x = gamepad1.left_stick_x;
         left_stick_y = gamepad1.left_stick_y;
-        left_trigger = gamepad1.left_trigger;
+        if(left_trigger_enable) left_trigger = gamepad1.left_trigger;
         right_stick_x = gamepad1.right_stick_x;
         right_stick_y = gamepad1.right_stick_y;
-        right_trigger = gamepad1.right_trigger;
+        if(right_trigger_enable) right_trigger = gamepad1.right_trigger;
 
         if (left_stick_x == 0 && left_stick_y == 0) {
             left_stick_x = gamepad2.left_stick_x;

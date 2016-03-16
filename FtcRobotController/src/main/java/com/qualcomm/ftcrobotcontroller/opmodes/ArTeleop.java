@@ -212,15 +212,29 @@ public class ArTeleop extends OpMode {
         //The intake is toggled by the  trigger
         double intakePosL = 0.5;
         double intakePosR = 0.5;
+        if(tiltMotor.getCurrentPosition() < 1600){
+            if(intakeToggle.onRelease(gpads.right_trigger > .5)){
+                intakePosL = 1;
+                intakePosR = 0;
+            }
+        }
+        else{
+            if(gpads.right_trigger > .5){
+                intakePosL = 0;
+                intakePosR = 1;
+            }
+
+        }
+        /*
         if(intakeToggle.onRelease(gpads.right_trigger > .5))
         {
             //If the arm is in scoring position, run the intake in reverse
             intakePosL = (tiltMotor.getCurrentPosition() < 1600) ? 1: 0;
             intakePosR = (tiltMotor.getCurrentPosition() < 1600) ? 0 : 1;
-        }
+        }*/
         if(gpads.right_bumper){
-            intakePosL = 0;
-            intakePosR = 1;
+            intakePosL = (tiltMotor.getCurrentPosition() < 1600) ? 0: 1;
+            intakePosR = (tiltMotor.getCurrentPosition() < 1600) ? 1 : 0;
         }
         intakeR.setPosition(intakePosR);
         intakeL.setPosition(intakePosL);
