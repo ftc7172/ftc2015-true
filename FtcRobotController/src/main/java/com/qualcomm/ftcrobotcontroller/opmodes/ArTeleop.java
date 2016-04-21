@@ -48,7 +48,7 @@ public class ArTeleop extends OpMode {
 
     //The team we are on for the match. Defaults to Red.
     boolean blueTeam = false;
-
+    boolean stacking = false;
     boolean ezero = true;
 
     DcMotor tiltMotor;
@@ -70,6 +70,7 @@ public class ArTeleop extends OpMode {
     double tiltTarget = 0;
     double panTarget = 0;
 
+
     Servo intakeR;
 
     Toggle intakeToggle;
@@ -86,6 +87,7 @@ public class ArTeleop extends OpMode {
 
     Toggle zipToggle;
     AnalogInput dist;
+    Boolean holdPos = false;
 
     Servo fenderl;
     Servo fenderr;
@@ -153,7 +155,7 @@ public class ArTeleop extends OpMode {
         panArm();
         intake();
         drive();
-        line();
+        //line();
         zipTriggers();
         winch();
         fender();
@@ -176,34 +178,110 @@ public class ArTeleop extends OpMode {
 
         //Driving is controlled by the left joystick
         float throttle = -gpads.left_stick_y;
+        if(throttle != 0){
+            holdPos =false;
+        }
         float direction = gpads.left_stick_x * .5f;
         double up = gpads.left_trigger * -0.5;
+        if(up != 0){
+            holdPos = true;
+        }
 
-        double right = throttle - direction;
-        double left = throttle + direction;
+        if(holdPos && gpads.left_trigger == 0){
+            lf.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+            rf.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+            lb.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+            rb.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
 
-        right = Range.clip(right, -1, 1);
-        left = Range.clip(left, -1, 1);
+            int lfenc = lf.getCurrentPosition();
+            int rfenc = rf.getCurrentPosition();
+            int lbenc = lb.getCurrentPosition();
+            int rbenc = rb.getCurrentPosition();
 
-        if (right == 0 && left == 0 && up<0){
-            lf.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-            lb.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-            rf.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-            rb.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-            right = up;
-            left = up;
+            lf.setTargetPosition(lfenc);
+            rf.setTargetPosition(rfenc);
+            lb.setTargetPosition(lbenc);
+            rb.setTargetPosition(rbenc);
+
+           lf.setPower(.2);
+            rf.setPower(.2);
+          lb.setPower(.2);
+            rb.setPower(.2);
+
         }
         else {
-            lf.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-            lb.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-            rf.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-            rb.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-        }
 
-        rf.setPower(right);
-        rb.setPower(right);
-        lf.setPower(left);
-        lb.setPower(left);
+            double right = throttle - direction;
+            double left = throttle + direction;
+
+            right = Range.clip(right, -.95, .95);
+            left = Range.clip(left, -.95, .95);
+
+            if (right == 0 && left == 0 && up < 0) {
+                lf.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+                lb.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+                rf.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+                rb.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+                right = up;
+                left = up;
+            } else {
+                lf.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+                lb.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+                rf.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+                rb.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+            }
+
+            /*if(rf.getPower() != 0 || lf.getPower() != 0 || lb.getPower() != 0 || rb.getPower() != 0 ||right != 0 || left!= 0)
+            {
+                if(rf.getPower() < right)
+                {
+                    rf.setPower(rf.getPower() + 0.06);
+                }
+                else if(rf.getPower() >= right)
+                 {
+                    rf.setPower(rf.getPower() - 0.06);
+                 }
+                else rf.setPower(right);
+
+                //if(lf.getPower() == 0) return;
+                if(lf.getPower() < left)
+                {
+                    lf.setPower(lf.getPower() + 0.06);
+                }
+                else if(lf.getPower() > left)
+                {
+                    lf.setPower(lf.getPower() - 0.06);
+                }
+                else lf.setPower(left);
+
+                if(lb.getPower() < left)
+                {
+                    lb.setPower(lb.getPower() + 0.06);
+                }
+                else if(lb.getPower() >= left)
+                {
+                    lb.setPower(lb.getPower() - 0.06);
+                }
+                else lb.setPower(left);
+
+                if(rb.getPower() < right)
+                {
+                    rb.setPower(rb.getPower() + 0.06);
+                }
+                else if(rb.getPower() >= right)
+                {
+                    rb.setPower(rb.getPower() - 0.06);
+                }
+                else rb.setPower(right);
+            }*/
+           /* else {*/
+                rf.setPower(right);
+                rb.setPower(right);
+                lf.setPower(left);
+                lb.setPower(left);
+           // }*/
+
+        }
 
     }
 
@@ -212,6 +290,10 @@ public class ArTeleop extends OpMode {
         //The intake is toggled by the  trigger
         double intakePosL = 0.5;
         double intakePosR = 0.5;
+        if(gpads.dpad_right){
+            intakePosL = 0;
+            intakePosR = 1;
+        }
         if(tiltMotor.getCurrentPosition() < 1600){
             if(intakeToggle.onRelease(gpads.right_trigger > .5)){
                 intakePosL = 1;
@@ -275,8 +357,12 @@ public class ArTeleop extends OpMode {
             tiltTarget = 2880;
             panTarget = (blueTeam) ? 200 : -200;
         }
-        if(gpads.b){
-            //Middle Zipline Climber
+        if(gpads.dpad_right){
+          //  tiltTarget = tiltTarget + 60;
+            //while(tiltMotor.getCurrentPosition() < tiltTarget) {
+                intakeL.setPosition(.3);
+                intakeR.setPosition(.7);
+            //    extendMotor.setPower(-.5);
 
         }
         //The A button returns the arm to driving position
@@ -324,7 +410,7 @@ public class ArTeleop extends OpMode {
         //This statement prevents the arm from surpassing a certain speed while tilting
         //which protects the robot in case of PID failure
         else if (tiltPos < tiltTarget - PID_RANGE || tiltPos > tiltTarget + PID_RANGE) {
-            double tiltpower = Range.clip(tiltTarget - tiltPos, -0.2, 0.2);
+            double tiltpower = Range.clip(tiltTarget - tiltPos, -0.3, 0.3);
             tiltMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
             tiltMotor.setPower(tiltpower);
         }
@@ -341,18 +427,19 @@ public class ArTeleop extends OpMode {
         double extendpower = 0;
         extendMotor.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         if(gpads.shift_dpad_down){
-            extendpower = -0.5;
+            extendpower = -1;
             ezero = false;
         }
         if(ezero && armTouch.isPressed()){
 
-            extendMotor.setPower(0.5);
+            extendMotor.setPower(.5);
             return;
         }
-        if (gpads.dpad_up) {extendpower = 0.5; ezero = true;}
-        if (gpads.dpad_down) {extendpower = -0.5; ezero = true;}
+        if (gpads.dpad_up) {extendpower = 1; ezero = true;}
+        if (gpads.dpad_down) {extendpower = -1; ezero = true;}
 
         extendMotor.setPower(extendpower);
+        telemetry.addData("Ezero", armTouch.isPressed());
     }
 
 

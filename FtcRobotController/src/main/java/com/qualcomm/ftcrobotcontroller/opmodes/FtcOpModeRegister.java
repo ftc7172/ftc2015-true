@@ -61,10 +61,10 @@ public class FtcOpModeRegister implements OpModeRegister {
     // manager.register("OhAuto", OhAuto.class);
     manager.register("ArTeleop", ArTeleop.class);
     manager.register("ArAuto", ArAuto.class);
-    manager.register("GyroDemo", GyroDemo.class);
+  //  manager.register("GyroDemo", GyroDemo.class);
     manager.register("SensorTest", SensorTest.class);
-    manager.register("SensorTestDIS", SensorTestDIS.class);
-    manager.register("BlinkMDemo", BlinkMDemo.class);
-
+   // manager.register("SensorTestDIS", SensorTestDIS.class);
+   // manager.register("BlinkMDemo", BlinkMDemo.class);
+    manager.register("PresOp", PresOp.class);
   }
 }
