@@ -8,8 +8,8 @@ import com.qualcomm.robotcore.util.Range;
  */
 
 public class Arbot {
-    final static double RZIP_UP = 0.85;
-    final static double RZIP_DOWN = 0.25;
+    final static double RZIP_UP = 0.95;
+    final static double RZIP_DOWN = 0.38;
 
     final static double BZIP_UP = 0.3;
     final static double BZIP_DOWN = 0.85;

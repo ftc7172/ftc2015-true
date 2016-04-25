@@ -130,7 +130,7 @@ public class ArAuto extends LinearOpMode {
             blueTeam = rbswitch.isPressed();
             delaySeconds = (delayToggle.count % 16) * 2;
             startPos = startP.count % 2;
-            endPos = endP.count % 3;
+            endPos = endP.count % 4;
 
             telemetry.addData("alliance", (blueTeam ? "blue" : "red"));
             telemetry.addData("delay (B)", delaySeconds + " seconds");
@@ -153,53 +153,81 @@ public class ArAuto extends LinearOpMode {
         fenderDown();
         fcolor.enableLed(true);
         if(blueTeam){
-            drive(0, -.35, 3200, 10, false);
-            drive(35, -.35, 8500, 10, false);
-            sleep(250);
+            if(startPos == 0) {
+                drive(0, -.35, 3200, 10, false);
+                drive(35, -.35, 8500, 10, false);
+            }
+            else{
+                drive(0, -.35, 2400, 10, false);
+                drive(35, -.35, 10000, 10, false);
+            }
+            sleep(500);
             drive(30, .35, 1800, 10, false);
-            drive(100, -.13, 2000, 10, true);
+            drive(100, -.13, 1800, 10, true);
             fenderUp();
             sleep(500);
-            drive(heading() - 5,-.12,1500,10,false);
+            drive(heading(),-.12,1500,10,false);
             drive(80,0.12,300,5,false);//HTO
-            drive(80,-0.12,7000,1.5,false);//hto
+            drive(80,-0.12,6500,1.5,false);//hto
             drive(80,0.12,100,5,false);//halved timeout
         } else {
+            if(startPos == 0){
+
+            }
+            else{
+
+            }
             drive(0, -.35, 3200, 10, false);
             sleep(250);
             drive(-35, -.35, 8500, 10, false);
             sleep(500);
             drive(-30, .35, 1800, 10, false);
-            drive(-100, -.13, 2000, 10, true);
+            drive(-100, -.13, 1800, 10, true);
             fenderUp();
+            waitOneFullHardwareCycle();
+            fenderUp();
+            waitOneFullHardwareCycle();
             sleep(500);
             drive(heading(),-.12,1500,10,false);
-            drive(-85,0.12,300,5,false);//hto
-            drive(-85,-0.12,7000,1.5,false);//hto
-            drive(-83,0.12,100,5,false);//hto
+            drive(-80,0.12,300,5,false);//hto
+            drive(-80, -0.12, 6500, 1.5, false);//hto
+            drive(-80,0.12,100,5,false);//hto
         }
 
         climberScore();
 
         if(endPos == 1){
             if(blueTeam){
-                drive(-85, 0.2, 10000, 10, false);
+                drive(85, 0.2, 10000, 10, false);
             }
             else{
-                drive(85, 0.2, 10000, 10, false);
+                drive(-85, 0.2, 10000, 10, false);
             }
         }
         else if(endPos ==2 ){
             if(blueTeam){
-                drive(-85, 0.2, 5000, 10, false);
-                drive(-135, 0.2, 10000, 10, false);
+                drive(45, 0.2, 4500, 5, false);
+                drive(110, -0.35, 7000, 10, false);
+                int lt = lb.getCurrentPosition();
+                int rt = rb.getCurrentPosition();
+                waitOneFullHardwareCycle();
+                lb.setTargetPosition(lt);
+                rb.setTargetPosition(rt);
+                waitOneFullHardwareCycle();
             }
 
             else{
-                drive(-45, 0.2, 48 00, 5, false);
-                drive(-135, -0.2, 5000, 10, false);
+                drive(-45, 0.2, 4500, 5, false);
+                drive(-110, -0.35, 7000, 10, false);
+                int lt = lb.getCurrentPosition();
+                int rt = rb.getCurrentPosition();
+                waitOneFullHardwareCycle();
+                lb.setTargetPosition(lt);
+                rb.setTargetPosition(rt);
+                waitOneFullHardwareCycle();
             }
         }
+
 
 
         //This positions the arm to score the climbers
@@ -223,7 +251,7 @@ public class ArAuto extends LinearOpMode {
             pastRPos = rb.getCurrentPosition();
             pastLPos = lb.getCurrentPosition();
 
-            if(colorStop && fcolor.green()>3) break;
+            if(colorStop && fcolor.green()>6) break;
 
             throttle = Range.clip(throttle, -1, 1);
             double right = throttle + error * .01;//.018
@@ -276,7 +304,7 @@ public class ArAuto extends LinearOpMode {
         fenderr.setPosition(Arbot.RFENDER_UP);
     }
 
-    public void climberScore() throws InterruptedException{
+    public void climberScore() throws InterruptedException {
         tiltUpArm(1690);
         sleep(1000);
         telemetry.addData("lcolor.red", lcolor.red());

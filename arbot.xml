@@ -12,7 +12,7 @@
         <Motor name="lf" port="1" />
         <Motor name="lb" port="2" />
     </MotorController>
-    <DeviceInterfaceModule name="Device Interface Module 1" serialNumber="AL00VDMS">
+    <DeviceInterfaceModule name="Device Interface Module 1" serialNumber="AL00VDK3">
         <Gyro name="gyro" port="0" />
         <ColorSensor name="lcolor" port="1" />
         <ColorSensor name="fcolor" port="2" />
