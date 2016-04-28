@@ -305,7 +305,7 @@ public class ArAuto extends LinearOpMode {
     }
 
     public void climberScore() throws InterruptedException {
-        tiltUpArm(1690);
+        tiltUpArm(1625);
         sleep(1000);
         telemetry.addData("lcolor.red", lcolor.red());
         telemetry.addData("lcolor.blue", lcolor.blue());

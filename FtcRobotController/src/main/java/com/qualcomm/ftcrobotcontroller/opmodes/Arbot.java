@@ -11,8 +11,8 @@ public class Arbot {
     final static double RZIP_UP = 0.95;
     final static double RZIP_DOWN = 0.38;
 
-    final static double BZIP_UP = 0.3;
-    final static double BZIP_DOWN = 0.85;
+    final static double BZIP_UP = .2;
+    final static double BZIP_DOWN = 0.77;
 
     final static double LFENDER_UP = 0.97;
     final static double LFENDER_DOWN = 0.05;

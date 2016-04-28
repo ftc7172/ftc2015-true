@@ -203,10 +203,10 @@ public class ArTeleop extends OpMode {
             lb.setTargetPosition(lbenc);
             rb.setTargetPosition(rbenc);
 
-           lf.setPower(.2);
-            rf.setPower(.2);
-          lb.setPower(.2);
-            rb.setPower(.2);
+           lf.setPower(.35);
+            rf.setPower(.35);
+           lb.setPower(.35);
+            rb.setPower(.35);
 
         }
         else {
