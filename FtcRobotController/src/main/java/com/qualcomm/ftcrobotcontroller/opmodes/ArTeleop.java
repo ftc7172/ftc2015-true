@@ -324,7 +324,7 @@ public class ArTeleop extends OpMode {
     }
 
     public void zipTriggers(){
-        if(zipToggle.onRelease(gpads.dpad_left)){
+        if(zipToggle.onRelease(gpads.shift_dpad_left)){
             if(blueTeam){
                 bZip.setPosition(Arbot.BZIP_DOWN);
             }

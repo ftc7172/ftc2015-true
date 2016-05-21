@@ -2,22 +2,21 @@
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
 
-        import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-        import com.qualcomm.robotcore.hardware.AnalogInput;
-        import com.qualcomm.robotcore.hardware.DcMotor;
-        import com.qualcomm.robotcore.hardware.DcMotorController;
-        import com.qualcomm.robotcore.hardware.LED;
-        import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
-        import com.qualcomm.robotcore.hardware.Servo;
-        import com.qualcomm.robotcore.hardware.TouchSensor;
-        import com.qualcomm.robotcore.util.Range;
-        import com.qualcomm.robotcore.hardware.GyroSensor;
-        import com.qualcomm.robotcore.hardware.ColorSensor;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.AnalogInput;
+import com.qualcomm.robotcore.hardware.ColorSensor;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorController;
+import com.qualcomm.robotcore.hardware.GyroSensor;
+import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
+import com.qualcomm.robotcore.util.Range;
 
 /**
  * Created by pmichaud on 2/8/2016.
  */
-public class ArAuto extends LinearOpMode {
+public class ArAutoFastPm extends LinearOpMode {
     DcMotor tiltMotor;
     DcMotor panMotor;
 
@@ -57,7 +56,7 @@ public class ArAuto extends LinearOpMode {
 
     OpticalDistanceSensor opD;
 
-    public ArAuto() {
+    public ArAutoFastPm() {
     }
 
     public int heading() {
@@ -154,15 +153,15 @@ public class ArAuto extends LinearOpMode {
         fcolor.enableLed(true);
         if(blueTeam){
             if(startPos == 0) {
-                drive(0, -.35, 3200, 10, false);
-                drive(35, -.35, 8500, 10, false);
+                drive(0, -.6, 3200, 10, false);
+                drive(35, -.6, 8500, 10, false);
             }
             else{
                 drive(0, -.35, 2400, 10, false);
                 drive(35, -.35, 10000, 10, false);
             }
             sleep(250);
-            drive(30, .35, 1800, 10, false);
+            drive(30, .6, 1800, 10, false);
             drive(100, -.13, 1800, 10, true);
             fenderUp();
             sleep(250);
@@ -177,11 +176,11 @@ public class ArAuto extends LinearOpMode {
             else{
 
             }
-            drive(0, -.35, 3200, 10, false);
+            drive(0, -.6, 3200, 10, false);
             //sleep(250);
-            drive(-35, -.35, 8500, 10, false);
+            drive(-35, -.6, 8500, 10, false);
             sleep(250);
-            drive(-30, .35, 1800, 10, false);
+            drive(-30, .6, 1800, 10, false);
             drive(-100, -.13, 1800, 10, true);
             fenderUp();
             waitOneFullHardwareCycle();
@@ -204,9 +203,10 @@ public class ArAuto extends LinearOpMode {
                 drive(-85, 0.2, 10000, 10, false);
             }
         }
+      //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         else if(endPos ==2 ){
             if(blueTeam){
-                drive(45, 0.2, 4500, 5, false);
+                /*drive(45, 0.2, 4500, 5, false);
                 drive(110, -0.35, 7000, 10, false);
                 int lt = lb.getCurrentPosition();
                 int rt = rb.getCurrentPosition();
@@ -214,20 +214,25 @@ public class ArAuto extends LinearOpMode {
                 lb.setTargetPosition(lt);
                 rb.setTargetPosition(rt);
                 waitOneFullHardwareCycle();
+                */
+                ///drive(angle (positive), power )
+                drive(125, .5, 7000, 10, false);
+
             }
 
             else{
-                drive(-45, 0.2, 4500, 5, false);
+              /*  drive(-45, 0.2, 4500, 5, false);
                 drive(-110, -0.35, 7000, 10, false);
                 int lt = lb.getCurrentPosition();
                 int rt = rb.getCurrentPosition();
                 waitOneFullHardwareCycle();
                 lb.setTargetPosition(lt);
                 rb.setTargetPosition(rt);
-                waitOneFullHardwareCycle();
+                waitOneFullHardwareCycle(); */
+                drive(-45, .5, 7000, 10, false);
             }
         }
-
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
         //This positions the arm to score the climbers

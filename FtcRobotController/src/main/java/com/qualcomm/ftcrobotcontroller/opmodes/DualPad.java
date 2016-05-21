@@ -59,6 +59,8 @@ public class DualPad {
         }
         if( gamepad2.right_trigger >= .9) right_trigger_2_enable=true;
 
+
+
         shift1 = gamepad1.left_bumper;
         shift2 = gamepad2.left_bumper;
 
@@ -94,10 +96,15 @@ public class DualPad {
 
         left_stick_x = gamepad1.left_stick_x;
         left_stick_y = gamepad1.left_stick_y;
-        if(left_trigger_1_enable) left_trigger = gamepad1.left_trigger;
+
+      // if(left_trigger_1_enable)
+           left_trigger = gamepad1.left_trigger;
+
         right_stick_x = gamepad1.right_stick_x;
         right_stick_y = gamepad1.right_stick_y;
-        if(right_trigger_1_enable) right_trigger = gamepad1.right_trigger;
+
+      //  if(right_trigger_1_enable)
+            right_trigger = gamepad1.right_trigger;
 
         if (left_stick_x == 0 && left_stick_y == 0) {
             left_stick_x = gamepad2.left_stick_x;
@@ -109,8 +116,8 @@ public class DualPad {
             right_stick_y = gamepad2.right_stick_y;
         }
 
-        if (left_trigger == 0&&left_trigger_2_enable) left_trigger = gamepad2.left_trigger;
-        if (right_trigger == 0&&right_trigger_2_enable) right_trigger = gamepad2.right_trigger;
+      //  if (left_trigger == 0) left_trigger = gamepad2.left_trigger;
+       if (right_trigger == 0) right_trigger = gamepad2.right_trigger;
     }
 }
 
