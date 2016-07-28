@@ -1,0 +1,38 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<Robot>
+    <MotorController name="Motor Controller 1" serialNumber="AL00VXJ8">
+        <Motor name="rf" port="1" />
+        <Motor name="rb" port="2" />
+    </MotorController>
+    <MotorController name="Motor Controller 3" serialNumber="AL00VXJ5">
+        <Motor name="pan" port="1" />
+        <Motor name="winch" port="2" />
+    </MotorController>
+    <MotorController name="Motor Controller 2" serialNumber="AH00QJ42">
+        <Motor name="lf" port="1" />
+        <Motor name="lb" port="2" />
+    </MotorController>
+    <DeviceInterfaceModule name="Device Interface Module 1" serialNumber="AL00VDMS">
+        <Gyro name="gyro" port="0" />
+        <ColorSensor name="lcolor" port="1" />
+        <ColorSensor name="fcolor" port="2" />
+        <ColorSensor name="rcolor" port="3" />
+        <I2cDevice name="us" port="4" />
+        <AnalogInput name="dis" port="0" />
+        <OpticalDistanceSensor name="opdist" port="1" />
+        <TouchSensor name="ezero" port="0" />
+        <TouchSensor name="rbswitch" port="1" />
+    </DeviceInterfaceModule>
+    <MotorController name="Motor Controller 4" serialNumber="AL00YD4Z">
+        <Motor name="extend" port="1" />
+        <Motor name="tilt" port="2" />
+    </MotorController>
+    <ServoController name="Servo Controller 5" serialNumber="AL00VDHJ">
+        <Servo name="pole" port="1" />
+        <Servo name="rfender" port="2" />
+        <Servo name="rzip" port="3" />
+        <Servo name="bzip" port="4" />
+        <Servo name="intake1" port="5" />
+        <Servo name="intake" port="6" />
+    </ServoController>
+</Robot>

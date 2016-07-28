@@ -1,4 +1,4 @@
-/* Copyright (c) 2014, 2015 Qualcomm Technologies Inc
+/* Copyright (c) 2015 Qualcomm Technologies Inc
 
 All rights reserved.
 
@@ -31,44 +31,34 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpModeManager;
-import com.qualcomm.robotcore.eventloop.opmode.OpModeRegister;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.I2cDevice;
+import com.qualcomm.robotcore.hardware.I2cDeviceReader;
+import com.qualcomm.robotcore.hardware.IrSeekerSensor;
 
 /**
- * Register Op Modes
+ * A simple example of a linear op mode that will approach an IR beacon
  */
-public class FtcOpModeRegister implements OpModeRegister {
+public class PmRangeSensor extends LinearOpMode {
 
-    /**
-     * The Op Mode Manager will call this method when it wants a list of all
-     * available op modes. Add your op mode to the list to enable it.
-     *
-     * @param manager op mode manager
-     */
-    public void register(OpModeManager manager) {
+  @Override
+  public void runOpMode() throws InterruptedException {
+    I2cDevice range;
+    range = hardwareMap.i2cDevice.get("range");
+    I2cDeviceReader rangeReader = new I2cDeviceReader(range, 0x28, 0x04, 2);
+    byte rangeReadings[];
 
-    /*
-     * register your op modes here.
-     * The first parameter is the name of the op mode
-     * The second parameter is the op mode class property
-     *
-     * If two or more op modes are registered with the same name, the app will display an error.
-     */
+    waitForStart();
 
+    while (opModeIsActive()) {
 
-        manager.register("NullOp", NullOp.class);
-        //manager.register("ArTeleop", ArTeleop.class);
-        manager.register("EsTelleop", EsTeleop.class);
-        //  manager.register("ArAuto", ArAuto.class);
-        manager.register("EsAutoFast", EsAutoFast.class);
-        manager.register("EsAuto", EsAuto.class);
-        manager.register("PmRangeSensor", PmRangeSensor.class);
-        //  manager.register("GyroDemo", GyroDemo.class);
-        manager.register("SensorTest", SensorTest.class);
-        // manager.register("SensorTestDIS", SensorTestDIS.class);
-        // manager.register("BlinkMDemo", BlinkMDemo.class);
-        //manager.register("PresOp", PresOp.class);
+      rangeReadings = rangeReader.getReadBuffer();
+      telemetry.addData("US", (rangeReadings[0] & 0xFF));
+      telemetry.addData("ODS", (rangeReadings[1] & 0xFF));
 
-
+      waitOneFullHardwareCycle();
     }
+  }
+
 }

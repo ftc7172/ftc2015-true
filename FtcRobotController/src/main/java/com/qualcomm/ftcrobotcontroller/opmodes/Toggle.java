@@ -9,17 +9,25 @@ public class Toggle {
     boolean buttonLast = false;
 
     public boolean onPress(boolean buttonNow) {
-        if (!buttonLast && buttonNow) { count++; onoff = !onoff; }
+        if (!buttonLast && buttonNow) {
+            count++;
+            onoff = !onoff;
+        }
         buttonLast = buttonNow;
         return onoff;
     }
 
     public boolean onRelease(boolean buttonNow) {
-        if (buttonLast && !buttonNow) { count++; onoff = !onoff; }
+        if (buttonLast && !buttonNow) {
+            count++;
+            onoff = !onoff;
+        }
         buttonLast = buttonNow;
         return onoff;
     }
 
-    public boolean isOnoff() { return onoff; }
+    public boolean isOnoff() {
+        return onoff;
+    }
 }
 

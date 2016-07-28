@@ -13,6 +13,9 @@ public class DualPad {
     boolean b;
     boolean x;
     boolean y;
+    boolean back;
+    boolean start;
+    boolean guide;
     boolean dpad_left;
     boolean dpad_right;
     boolean dpad_up;
@@ -21,19 +24,22 @@ public class DualPad {
     boolean right_bumper;
     boolean left_trigger_1_enable = false;
     boolean right_trigger_1_enable = false;
-    boolean left_trigger_2_enable=false;
-    boolean right_trigger_2_enable=false;
+    boolean left_trigger_2_enable = false;
+    boolean right_trigger_2_enable = false;
     float left_stick_x;
     float left_stick_y;
     float right_stick_x;
     float right_stick_y;
-    float left_trigger=0;
-    float right_trigger=0;
+    float left_trigger = 0;
+    float right_trigger = 0;
 
     boolean shift_a;
     boolean shift_b;
     boolean shift_x;
     boolean shift_y;
+    boolean shift_back;
+    boolean shift_guide;
+    boolean shift_start;
     boolean shift_dpad_left;
     boolean shift_dpad_right;
     boolean shift_dpad_up;
@@ -49,16 +55,15 @@ public class DualPad {
 
     public void setPads(Gamepad gamepad1, Gamepad gamepad2) {
 
-        if (gamepad1.left_trigger >= 0.9 ){
+        if (gamepad1.left_trigger >= 0.9) {
             left_trigger_1_enable = true;
         }
-        if( gamepad2.left_trigger >=.9)left_trigger_2_enable=true;
+        if (gamepad2.left_trigger >= .9) left_trigger_2_enable = true;
 
-        if (gamepad1.right_trigger >=.9 ){
+        if (gamepad1.right_trigger >= .9) {
             right_trigger_1_enable = true;
         }
-        if( gamepad2.right_trigger >= .9) right_trigger_2_enable=true;
-
+        if (gamepad2.right_trigger >= .9) right_trigger_2_enable = true;
 
 
         shift1 = gamepad1.left_bumper;
@@ -75,6 +80,15 @@ public class DualPad {
 
         y = gamepad1.y && !shift1 || gamepad2.y && !shift2;
         shift_y = gamepad1.y && shift1 || gamepad2.y && shift2;
+
+        start = gamepad1.start && !shift1 || gamepad2.start && !shift2;
+        shift_start = gamepad1.start && shift1 || gamepad2.start && shift2;
+
+        back = gamepad1.back && !shift1 || gamepad2.back && !shift2;
+        shift_back = gamepad1.back && !shift1 || gamepad2.back && !shift2;
+
+        guide = gamepad1.guide && !shift1 || gamepad2.guide && !shift2;
+        shift_guide = gamepad1.guide && !shift1 || gamepad2.guide && !shift2;
 
         dpad_left = gamepad1.dpad_left && !shift1 || gamepad2.dpad_left && !shift2;
         shift_dpad_left = gamepad1.dpad_left && shift1 || gamepad2.dpad_left && shift2;
@@ -97,14 +111,14 @@ public class DualPad {
         left_stick_x = gamepad1.left_stick_x;
         left_stick_y = gamepad1.left_stick_y;
 
-      // if(left_trigger_1_enable)
-           left_trigger = gamepad1.left_trigger;
+        // if(left_trigger_1_enable)
+        left_trigger = gamepad1.left_trigger;
 
         right_stick_x = gamepad1.right_stick_x;
         right_stick_y = gamepad1.right_stick_y;
 
-      //  if(right_trigger_1_enable)
-            right_trigger = gamepad1.right_trigger;
+        //  if(right_trigger_1_enable)
+        right_trigger = gamepad2.right_trigger;
 
         if (left_stick_x == 0 && left_stick_y == 0) {
             left_stick_x = gamepad2.left_stick_x;
@@ -116,8 +130,8 @@ public class DualPad {
             right_stick_y = gamepad2.right_stick_y;
         }
 
-      //  if (left_trigger == 0) left_trigger = gamepad2.left_trigger;
-       if (right_trigger == 0) right_trigger = gamepad2.right_trigger;
+        //  if (left_trigger == 0) left_trigger = gamepad2.left_trigger;
+        if (gamepad1.right_trigger != 0) right_trigger = gamepad1.right_trigger;
     }
 }
 

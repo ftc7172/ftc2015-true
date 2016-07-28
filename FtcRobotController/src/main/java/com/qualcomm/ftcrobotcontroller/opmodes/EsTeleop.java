@@ -33,15 +33,15 @@ package com.qualcomm.ftcrobotcontroller.opmodes;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.AnalogInput;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
-import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.hardware.TouchSensor;
+import com.qualcomm.robotcore.util.Range;
 
-public class ArTeleop extends OpMode {
+public class EsTeleop extends OpMode {
 
     //Our gamepad wrapper class
     DualPad gpads;
@@ -57,6 +57,7 @@ public class ArTeleop extends OpMode {
     Servo rZip;
     Servo bZip;
     Servo intakeL;
+    Servo pole;
 
 
     //The extend zero-switch
@@ -65,7 +66,7 @@ public class ArTeleop extends OpMode {
     //Sets the team color each match
     TouchSensor rbSwitch;
 
-   OpticalDistanceSensor opDist;
+    OpticalDistanceSensor opDist;
 
     double tiltTarget = 0;
     double panTarget = 0;
@@ -89,12 +90,12 @@ public class ArTeleop extends OpMode {
     AnalogInput dist;
     Boolean holdPos = false;
 
-    Servo fenderl;
+
     Servo fenderr;
     ColorSensor fcolor;
 
 
-    public ArTeleop() {
+    public EsTeleop() {
     }
 
     @Override
@@ -102,14 +103,16 @@ public class ArTeleop extends OpMode {
         // initialize servos first
         rZip = hardwareMap.servo.get("rzip");
         rZip.setPosition(Arbot.RZIP_UP);
-        bZip= hardwareMap.servo.get("bzip");
+        bZip = hardwareMap.servo.get("bzip");
         bZip.setPosition(Arbot.BZIP_UP);
         intakeR = hardwareMap.servo.get("intake");
         intakeR.setPosition(.5);
         intakeL = hardwareMap.servo.get("intake1");
         intakeL.setPosition(.5);
-        fenderl = hardwareMap.servo.get("lfender");
+
         fenderr = hardwareMap.servo.get("rfender");
+        pole = hardwareMap.servo.get("pole");
+        pole.setPosition(0.5);
         // leave fenders alone until play is pressed
 
         fcolor = hardwareMap.colorSensor.get("fcolor");
@@ -139,7 +142,7 @@ public class ArTeleop extends OpMode {
         rf.setDirection(DcMotor.Direction.REVERSE);
         rb.setDirection(DcMotor.Direction.REVERSE);
 
-        if(rbSwitch.isPressed()){
+        if (rbSwitch.isPressed()) {
             blueTeam = true;
         }
 
@@ -159,13 +162,13 @@ public class ArTeleop extends OpMode {
         zipTriggers();
         winch();
         fender();
-        if(gpads.shift_a){
+        if (gpads.shift_a) {
             panMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
             tiltMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
         }
     }
 
-    private void line(){
+    private void line() {
         telemetry.addData("red", fcolor.red());
         telemetry.addData("blue", fcolor.blue());
         telemetry.addData("green", fcolor.green());
@@ -178,16 +181,16 @@ public class ArTeleop extends OpMode {
 
         //Driving is controlled by the left joystick
         float throttle = -gpads.left_stick_y;
-        if(throttle != 0){
-            holdPos =false;
+        if (throttle != 0) {
+            holdPos = false;
         }
         float direction = gpads.left_stick_x * .5f;
         double up = gpads.left_trigger * -0.5;
-        if(up != 0){
+        if (up != 0) {
             holdPos = true;
         }
 
-        if(holdPos && gpads.left_trigger == 0){
+        if (holdPos && gpads.left_trigger == 0) {
             lf.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
             rf.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
             lb.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
@@ -203,13 +206,12 @@ public class ArTeleop extends OpMode {
             lb.setTargetPosition(lbenc);
             rb.setTargetPosition(rbenc);
 
-           lf.setPower(.35);
+            lf.setPower(.35);
             rf.setPower(.35);
-           lb.setPower(.35);
+            lb.setPower(.35);
             rb.setPower(.35);
 
-        }
-        else {
+        } else {
 
             double right = throttle - direction;
             double left = throttle + direction;
@@ -275,33 +277,32 @@ public class ArTeleop extends OpMode {
                 else rb.setPower(right);
             }*/
            /* else {*/
-                rf.setPower(right);
-                rb.setPower(right);
-                lf.setPower(left);
-                lb.setPower(left);
-           // }*/
+            rf.setPower(right);
+            rb.setPower(right);
+            lf.setPower(left);
+            lb.setPower(left);
+            // }*/
 
         }
 
     }
 
-    public void intake(){
+    public void intake() {
 
         //The intake is toggled by the  trigger
         double intakePosL = 0.5;
         double intakePosR = 0.5;
-        if(gpads.dpad_right){
+        if (gpads.dpad_right) {
             intakePosL = 0;
             intakePosR = 1;
         }
-        if(tiltMotor.getCurrentPosition() < 1600){
-            if(intakeToggle.onRelease(gpads.right_trigger > .5)){
+        if (tiltMotor.getCurrentPosition() < 1600) {
+            if (intakeToggle.onRelease(gpads.right_trigger > .5)) {
                 intakePosL = 1;
                 intakePosR = 0;
             }
-        }
-        else{
-            if(gpads.right_trigger > .5){
+        } else {
+            if (gpads.right_trigger > .5) {
                 intakePosL = 0;
                 intakePosR = 1;
             }
@@ -314,8 +315,8 @@ public class ArTeleop extends OpMode {
             intakePosL = (tiltMotor.getCurrentPosition() < 1600) ? 1: 0;
             intakePosR = (tiltMotor.getCurrentPosition() < 1600) ? 0 : 1;
         }*/
-        if(gpads.right_bumper){
-            intakePosL = (tiltMotor.getCurrentPosition() < 1600) ? 0: 1;
+        if (gpads.right_bumper) {
+            intakePosL = (tiltMotor.getCurrentPosition() < 1600) ? 0 : 1;
             intakePosR = (tiltMotor.getCurrentPosition() < 1600) ? 1 : 0;
         }
         intakeR.setPosition(intakePosR);
@@ -323,68 +324,73 @@ public class ArTeleop extends OpMode {
 
     }
 
-    public void zipTriggers(){
-        if(zipToggle.onRelease(gpads.shift_dpad_left)){
-            if(blueTeam){
+    public void zipTriggers() {
+        if (zipToggle.onRelease(gpads.shift_dpad_left)) {
+            if (blueTeam) {
                 bZip.setPosition(Arbot.BZIP_DOWN);
-            }
-            else{
+            } else {
                 rZip.setPosition(Arbot.RZIP_DOWN);
             }
-        }
-        else {
+        } else {
             bZip.setPosition(Arbot.BZIP_UP);
             rZip.setPosition(Arbot.RZIP_UP);
         }
     }
 
-    public void presets(){
+    public void presets() {
         //The Y button extends the arm to high basket scoring position
-        if(gpads.y){
+        if (gpads.y) {
             tiltTarget = 2650;
             panTarget = (blueTeam) ? -250 : 173;
             intakeToggle.onoff = false;
 
         }
         //Shift-Y extends the arm to mid basket scoring position
-        if(gpads.shift_y){
+        if (gpads.shift_y) {
             tiltTarget = 2925;
-            panTarget = (blueTeam) ? -412: 412;
+            panTarget = (blueTeam) ? -412 : 412;
             intakeToggle.onoff = false;
         }
         //The X button extends the arm to High Zipline Climber position
-        if(gpads.x){
+        if (gpads.x) {
             tiltTarget = 2880;
             panTarget = (blueTeam) ? 200 : -200;
         }
-        if(gpads.dpad_right){
-          //  tiltTarget = tiltTarget + 60;
+
+        if (gpads.dpad_right) {
+            //  tiltTarget = tiltTarget + 60;
             //while(tiltMotor.getCurrentPosition() < tiltTarget) {
-                intakeL.setPosition(.3);
-                intakeR.setPosition(.7);
+            intakeL.setPosition(.3);
+            intakeR.setPosition(.7);
             //    extendMotor.setPower(-.5);
 
         }
         //The A button returns the arm to driving position
-        if(gpads.a){
-            tiltTarget =  300;
+        if (gpads.a) {
+            tiltTarget = 300;
             panTarget = 0;
             intakeToggle.onoff = false;
         }
-        if(gpads.shift_a){
+        if (gpads.shift_a) {
             //Sets 0 point
         }
-        if(gpads.shift_dpad_up){
+        if (gpads.shift_dpad_up) {
             //High Zone Parking
             tiltTarget = 2600;
             panTarget = 0;
         }
         //Shift X and B (Blue and Red buttons) serve to change the team if the robot switch fails
-        if(gpads.shift_x){
+        if (gpads.shift_x) {
             blueTeam = true;
         }
-        if(gpads.shift_b){
+        if (gpads.shift_b) {
             blueTeam = false;
+        }
+
+        //guide button goes to pole extension position
+        if(gpads.guide){
+            panTarget=EsBot.POLE_POSITION[0];
+            tiltTarget=EsBot.POLE_POSITION[1];
         }
 
     }
@@ -399,11 +405,10 @@ public class ArTeleop extends OpMode {
         telemetry.addData("tiltTarget", tiltTarget);
         telemetry.addData("tiltPos", tiltPos);
 
-        if (intakeToggle.isOnoff()&& tiltMotor.getCurrentPosition()<500){
+        if (intakeToggle.isOnoff() && tiltMotor.getCurrentPosition() < 500) {
             tiltMotor.setPowerFloat();
             tiltTarget = tiltMotor.getCurrentPosition();
-        }
-        else if(gpads.b){
+        } else if (gpads.b) {
             tiltMotor.setPowerFloat();
             tiltTarget = tiltMotor.getCurrentPosition();
         }
@@ -413,30 +418,34 @@ public class ArTeleop extends OpMode {
             double tiltpower = Range.clip(tiltTarget - tiltPos, -0.3, 0.3);
             tiltMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
             tiltMotor.setPower(tiltpower);
-        }
-        else {
+        } else {
             tiltMotor.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
             tiltMotor.setPower(0.2);
             tiltMotor.setTargetPosition((int) tiltTarget);
         }
     }
 
-    public void extendArm()
-    {
+    public void extendArm() {
         //Extension is controlled by up and down on the Dpad
         double extendpower = 0;
         extendMotor.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-        if(gpads.shift_dpad_down){
+        if (gpads.shift_dpad_down) {
             extendpower = -1;
             ezero = false;
         }
-        if(ezero && armTouch.isPressed()){
+        if (ezero && armTouch.isPressed()) {
 
             extendMotor.setPower(.5);
             return;
         }
-        if (gpads.dpad_up) {extendpower = 1; ezero = true;}
-        if (gpads.dpad_down) {extendpower = -1; ezero = true;}
+        if (gpads.dpad_up) {
+            extendpower = 1;
+            ezero = true;
+        }
+        if (gpads.dpad_down) {
+            extendpower = -1;
+            ezero = true;
+        }
 
         extendMotor.setPower(extendpower);
         telemetry.addData("Ezero", armTouch.isPressed());
@@ -450,9 +459,9 @@ public class ArTeleop extends OpMode {
         double panPos = panMotor.getCurrentPosition();
         panTarget += gpads.right_stick_x * -2;
 
-        telemetry.addData("panTarget", panTarget);
+        //telemetry.addData("panTarget", panTarget);
         telemetry.addData("panPos", panPos);
-        if (tiltMotor.getCurrentPosition()>1000 || gpads.right_stick_x != 0) {
+        if (tiltMotor.getCurrentPosition() > 1000 || gpads.right_stick_x != 0) {
             //This statement prevents the arm from surpassing a certain speed while panning
             //which protects the robot in case of PID failure
 
@@ -467,23 +476,30 @@ public class ArTeleop extends OpMode {
             }
         }
     }
+
     public void winch() {
+
+        if (gpads.start) {
+            pole.setPosition(0);
+        } else if (gpads.shift_start)
+            pole.setPosition(1);
+        else{
+            pole.setPosition(0.5);
+        }
+
         winchMotor.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         if (gamepad1.back) {
             winchPower = 1;
-        }
-        else {
-            winchPower=0;
+        } else {
+            winchPower = 0;
         }
         winchMotor.setPower(winchPower);
     }
+
     public void fender() {
-        if (fenderToggle.onRelease(gpads.shift_dpad_right)){
-            fenderl.setPosition(Arbot.LFENDER_DOWN);
+        if (fenderToggle.onRelease(gpads.shift_dpad_right)) {
             fenderr.setPosition(Arbot.RFENDER_DOWN);
-        }
-        else {
-            fenderl.setPosition(Arbot.LFENDER_UP);
+        } else {
             fenderr.setPosition(Arbot.RFENDER_UP);
         }
     }
