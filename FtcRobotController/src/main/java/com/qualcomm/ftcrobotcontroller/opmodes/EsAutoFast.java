@@ -188,7 +188,7 @@ public class EsAutoFast extends LinearOpMode {
             drive(85, 0.12, new DistanceStop(200));//halved timeout
             fenderUp();
             sleep(250);
-            drive(85, -0.12, new DistanceStop(200));//halved timeout
+            drive(85, -0.12, new DistanceStop(250));//halved timeout
         } else {
             if (startPos == 0) {
 
@@ -212,7 +212,7 @@ public class EsAutoFast extends LinearOpMode {
             drive(-85, 0.12, new DistanceStop(200));//hto
             fenderUp();
             sleep(250);
-            drive(-85, -0.12, new DistanceStop(200) );//halved timeout
+            drive(-85, -0.12, new DistanceStop(250) );//halved timeout
         }
 
         climberScore();
@@ -372,7 +372,7 @@ public class EsAutoFast extends LinearOpMode {
     }
 
     public void climberScore() throws InterruptedException {
-        tiltUpArm(1600);
+        tiltUpArm(1690);
         sleep(1000);
         telemetry.addData("lcolor.red", lcolor.red());
         telemetry.addData("lcolor.blue", lcolor.blue());

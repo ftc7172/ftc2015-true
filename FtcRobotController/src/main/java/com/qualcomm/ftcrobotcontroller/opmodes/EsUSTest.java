@@ -64,13 +64,13 @@ public class EsUSTest extends LinearOpMode {
     }
 
     public int heading() {
-        return gyro.getHeading() > 180 ? gyro.getHeading() - 360: gyro.getHeading();
+        return gyro.getHeading() > 180 ? gyro.getHeading() - 360 : gyro.getHeading();
     }
 
     @Override
     public void runOpMode() throws InterruptedException {
         dist = hardwareMap.analogInput.get("dis");
-        fenderl = hardwareMap.servo.get("lfender");
+       // fenderl = hardwareMap.servo.get("lfender");
         fenderr = hardwareMap.servo.get("rfender");
         fenderUp();
         rZip = hardwareMap.servo.get("rzip");
@@ -78,7 +78,7 @@ public class EsUSTest extends LinearOpMode {
         bZip.setPosition(Arbot.BZIP_UP);
         rZip.setPosition(Arbot.RZIP_UP);
         intakeServo = hardwareMap.servo.get("intake");
-        intakeL= hardwareMap.servo.get("intake1");
+        intakeL = hardwareMap.servo.get("intake1");
         intakeServo.setPosition(0.5);
         intakeL.setPosition(0.5);
         waitOneFullHardwareCycle();
@@ -90,8 +90,8 @@ public class EsUSTest extends LinearOpMode {
         panMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
         panMotor.setDirection(DcMotor.Direction.REVERSE);
         gyro = hardwareMap.gyroSensor.get("gyro");
-        myUS=hardwareMap.i2cDevice.get("us");
-        USreader= new I2cDeviceReader(myUS,0x28,0x04,2);
+        myUS = hardwareMap.i2cDevice.get("us");
+        USreader = new I2cDeviceReader(myUS, 0x28, 0x04, 2);
 
         lf = hardwareMap.dcMotor.get("lf");
         lb = hardwareMap.dcMotor.get("lb");
@@ -125,7 +125,7 @@ public class EsUSTest extends LinearOpMode {
         waitOneFullHardwareCycle();
         gyro.calibrate();
 
-        while(gyro.isCalibrating()){
+        while (gyro.isCalibrating()) {
             telemetry.addData("gyro", gyro.isCalibrating() ? "not ready" : "ready");
             waitOneFullHardwareCycle();
         }
@@ -139,39 +139,40 @@ public class EsUSTest extends LinearOpMode {
         //This drives our robot to the beacon
         fenderDown();
         fcolor.enableLed(true);
-        telemetry.addData("heading",heading());
-        byte usReading=0;
-        while(true){
-            usReading=(byte) (USreader.getReadBuffer()[0]&0xFF);
-            telemetry.addData("US",usReading);
-        }
+        telemetry.addData("heading", heading());
+        byte usReading = 0;
+       /* while (true) {
+            usReading = (byte) (USreader.getReadBuffer()[0] & 0xFF);
+            telemetry.addData("US", usReading);
+        }*/
         //drive(0, -0.2, new USStop(0), new DistanceStop(300));
-
+        TimeStop t =new TimeStop(time, 1000);
+        drive(0, -.2, t);
 
         //This positions the arm to score the climbers
 
     }
 
-    public boolean drive(double targetAngle, double throttle, stopCondition ... stops )throws InterruptedException{
+    public boolean drive(double targetAngle, double throttle, stopCondition... stops) throws InterruptedException {
         int pastRPos = rb.getCurrentPosition();
         int pastLPos = lb.getCurrentPosition();
-        double distanceShift=0;
-        byte USreading=0;
+        double distanceShift = 0;
+        byte USreading = 0;
 
-        while (stops.length>0){
+        while (stops.length > 0) {
             double heading = heading();
             double error = (heading) - targetAngle;
-            USreading=(byte) (USreader.getReadBuffer()[0]&0xFF);
+            USreading = (byte) (USreader.getReadBuffer()[0] & 0xFF);
 
-            distanceShift=Math.cos(error * Math.PI/180) * (Math.abs(rb.getCurrentPosition() - pastRPos) + Math.abs(lb.getCurrentPosition()-pastLPos));
+            distanceShift = Math.cos(error * Math.PI / 180) * (Math.abs(rb.getCurrentPosition() - pastRPos) + Math.abs(lb.getCurrentPosition() - pastLPos));
 
-            telemetry.addData("US",USreading);
-            telemetry.addData("heading",heading);
-            for(stopCondition s : stops){
-                telemetry.addData("type",s.type());
-                if(s.type().equals("distance")){
+            telemetry.addData("US", USreading);
+            telemetry.addData("heading", heading);
+            for (stopCondition s : stops) {
+                telemetry.addData("type", s.type());
+                if (s.type().equals("distance")) {
                     s.update(distanceShift);
-                    if(s.stop())  {
+                    if (s.stop()) {
                         rf.setPower(0);
                         rb.setPower(0);
                         lf.setPower(0);
@@ -180,9 +181,12 @@ public class EsUSTest extends LinearOpMode {
                         return false;
                     }
                 }
-                if(s.type().equals("time")){
+                if (s.type().equals("time")) {
                     s.update(time);
-                    if(s.stop()){
+                    telemetry.addData("time", time);
+                   // telemetry.addData("end time", (TimeStop) (s).iEndTime);
+                    telemetry.addData("stop?",s.stop());
+                    if (s.stop()) {
                         rf.setPower(0);
                         rb.setPower(0);
                         lf.setPower(0);
@@ -191,9 +195,9 @@ public class EsUSTest extends LinearOpMode {
                         return true;
                     }
                 }
-                if(s.type().equals("color")){
+                if (s.type().equals("color")) {
                     s.update(fcolor.green());
-                    if(s.stop()){
+                    if (s.stop()) {
                         rf.setPower(0);
                         rb.setPower(0);
                         lf.setPower(0);
@@ -202,9 +206,9 @@ public class EsUSTest extends LinearOpMode {
                         return false;
                     }
                 }
-                if(s.type().equals("ultrasonic")){
+                if (s.type().equals("ultrasonic")) {
                     s.update(USreading);
-                    if(s.stop()) {
+                    if (s.stop()) {
                         rf.setPower(0);
                         rb.setPower(0);
                         lf.setPower(0);
@@ -220,25 +224,22 @@ public class EsUSTest extends LinearOpMode {
             pastLPos = lb.getCurrentPosition();
 
 
-
             throttle = Range.clip(throttle, -1, 1);
             double right = throttle + error * .01;//.018
             double left = throttle - error * .01;
-            if(throttle < 0) {
-                right = Range.clip(right, Math.max(2*throttle, -1), 0);
-                left = Range.clip(left, Math.max(2*throttle, -1), 0);
+            if (throttle < 0) {
+                right = Range.clip(right, Math.max(2 * throttle, -1), 0);
+                left = Range.clip(left, Math.max(2 * throttle, -1), 0);
+            } else {
+                right = Range.clip(right, 0, Math.min(2 * throttle, 1));
+                left = Range.clip(left, 0, Math.min(2 * throttle, 1));
             }
-            else{
-                right = Range.clip(right, 0, Math.min(2*throttle, 1));
-                left = Range.clip(left, 0, Math.min(2*throttle, 1));
-            }
-            if(throttle >  0 || throttle < -0.2) {
+            if (throttle > 0 || throttle < -0.2) {
                 rf.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
                 rb.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
                 lf.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
                 lb.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-            }
-            else{
+            } else {
                 rf.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
                 rb.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
                 lf.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
@@ -262,13 +263,13 @@ public class EsUSTest extends LinearOpMode {
 
     public void fenderDown() {
 
-            fenderl.setPosition(Arbot.LFENDER_DOWN);
-            fenderr.setPosition(Arbot.RFENDER_DOWN);
+       // fenderl.setPosition(Arbot.LFENDER_DOWN);
+        fenderr.setPosition(Arbot.RFENDER_DOWN);
     }
 
 
     public void fenderUp() {
-        fenderl.setPosition(Arbot.LFENDER_UP);
+        //fenderl.setPosition(Arbot.LFENDER_UP);
         fenderr.setPosition(Arbot.RFENDER_UP);
     }
 
@@ -300,10 +301,10 @@ public class EsUSTest extends LinearOpMode {
         tiltMotor.setPowerFloat();
     }*/
 
-    public void tiltUpArm(double t) throws InterruptedException{
+    public void tiltUpArm(double t) throws InterruptedException {
         tiltTarget = t;
         telemetry.addData("tiltTarget", tiltTarget);
-        while(true) {
+        while (true) {
             double tiltPos = tiltMotor.getCurrentPosition();
             if (tiltPos > tiltTarget) {
                 break;
@@ -326,7 +327,7 @@ public class EsUSTest extends LinearOpMode {
                 break;
             }
             tiltMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-            tiltMotor.setPower(- .2);
+            tiltMotor.setPower(-.2);
             waitOneFullHardwareCycle();
         }
         tiltMotor.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
@@ -338,7 +339,7 @@ public class EsUSTest extends LinearOpMode {
         double panPos = panMotor.getCurrentPosition();
 
         panMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-        while(true) {
+        while (true) {
             panPos = panMotor.getCurrentPosition();
             if (panPos < panTarget) {
                 break;
@@ -355,7 +356,7 @@ public class EsUSTest extends LinearOpMode {
         double panPos = panMotor.getCurrentPosition();
 
         panMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-        while(true) {
+        while (true) {
             panPos = panMotor.getCurrentPosition();
             if (panPos > panTarget) {
                 break;

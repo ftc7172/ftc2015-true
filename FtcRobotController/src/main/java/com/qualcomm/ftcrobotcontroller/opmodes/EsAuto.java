@@ -70,7 +70,8 @@ public class EsAuto extends LinearOpMode {
     }
 
     @Override
-    public void runOpMode() throws InterruptedException {
+    public void runOpMode()
+            throws InterruptedException {
         dist = hardwareMap.analogInput.get("dis");
         // = hardwareMap.servo.get("lfender");
         fenderr = hardwareMap.servo.get("rfender");
@@ -180,18 +181,18 @@ public class EsAuto extends LinearOpMode {
             }
 
             sleep(250);
-            drive(30, .35, new DistanceStop(1500));
-            drive(100, -.13, new DistanceStop(1800), new ColorStop(), new TimeStop(time, 500));
+            drive(30, .35, new DistanceStop(1500), new TimeStop(time, 5000));
+            drive(100, -.13, new DistanceStop(1800), new ColorStop(), new TimeStop(time, 5000));
 
             // fenderUp();
             sleep(250);
             drive(heading(), -.12, new DistanceStop(1500), new USStop(13), new TimeStop(time, 3000));
             drive(85, 0.12, new DistanceStop(300), new TimeStop(time, 500));//HTO
             drive(85, -0.12, new DistanceStop(6500), new USStop(13), new TimeStop(time, 3000));//hto
-            drive(85, 0.12, new DistanceStop(200));//halved timeout
+            drive(85, 0.12, new DistanceStop(200), new TimeStop(time,3000));//halved timeout
             fenderUp();
             sleep(250);
-            drive(85, -0.12, new DistanceStop(200));
+            drive(85, -0.12, new DistanceStop(350), new TimeStop(time, 3000));
 
         } else {
             if (startPos == 0) {
@@ -217,7 +218,7 @@ public class EsAuto extends LinearOpMode {
             drive(-85, 0.12, new DistanceStop(200));//hto
             fenderUp();
             sleep(250);
-            drive(-85, -0.12, new DistanceStop(200));
+            drive(-85, -0.12, new DistanceStop(350));
 
         }
 
@@ -368,7 +369,7 @@ public class EsAuto extends LinearOpMode {
     }
 
     public void climberScore() throws InterruptedException {
-        tiltUpArm(1600);
+        tiltUpArm(1690);
         sleep(1000);
         telemetry.addData("lcolor.red", lcolor.red());
         telemetry.addData("lcolor.blue", lcolor.blue());

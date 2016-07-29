@@ -4,14 +4,15 @@ package com.qualcomm.ftcrobotcontroller.opmodes;
  * Created by robotics on 6/8/2016.
  */
 public class TimeStop implements stopCondition {
-    private double iTime, iEndTime;
+    public double iTime, iEndTime;
     public TimeStop(double startTime, double duration){
         iTime=startTime;
-        iEndTime=duration+startTime;
+        iEndTime=(duration/1000)+startTime;
     }
     @Override
     public boolean stop() {
-        return iTime>=iEndTime;
+       // telemetry.addData("end time", iEndTime);
+        return iTime >= iEndTime;
     }
 
     @Override
