@@ -187,12 +187,13 @@ public class EsAuto extends LinearOpMode {
             // fenderUp();
             sleep(250);
             drive(heading(), -.12, new DistanceStop(1500), new USStop(13), new TimeStop(time, 3000));
-            drive(85, 0.12, new DistanceStop(300), new TimeStop(time, 500));//HTO
+            drive(85, 0.12, new DistanceStop(300), new TimeStop(time, 5000));//HTO
             drive(85, -0.12, new DistanceStop(6500), new USStop(13), new TimeStop(time, 3000));//hto
             drive(85, 0.12, new DistanceStop(200), new TimeStop(time,3000));//halved timeout
             fenderUp();
             sleep(250);
-            drive(85, -0.12, new DistanceStop(350), new TimeStop(time, 3000));
+            drive(85, -0.12, new DistanceStop(325
+            ), new TimeStop(time, 3000));
 
         } else {
             if (startPos == 0) {
@@ -213,12 +214,12 @@ public class EsAuto extends LinearOpMode {
             waitOneFullHardwareCycle();
             sleep(250);
             drive(heading(), -.12, new DistanceStop(1500), new USStop(13), new TimeStop(time, 3000));
-            drive(-85, 0.12, new DistanceStop(300), new TimeStop(time, 500));//hto
+            drive(-85, 0.12, new DistanceStop(300), new TimeStop(time, 5000));//hto
             drive(-85, -0.12, new DistanceStop(6500), new USStop(14), new TimeStop(time,3000));//hto
-            drive(-85, 0.12, new DistanceStop(200));//hto
+            drive(-85, 0.12, new DistanceStop(200), new TimeStop(time, 3000));//hto
             fenderUp();
             sleep(250);
-            drive(-85, -0.12, new DistanceStop(350));
+            drive(-85, -0.12, new DistanceStop(325), new TimeStop(time, 3000));
 
         }
 
@@ -378,18 +379,18 @@ public class EsAuto extends LinearOpMode {
         waitOneFullHardwareCycle();
         if ((blueTeam && rcolor.blue() > rcolor.red())
                 || (!blueTeam && rcolor.red() > rcolor.blue())) {
-            panRight(-100);
+            panRight(-100, new TimeStop(time, 3000));
             drive(heading(), -0.15, new DistanceStop(250));
             sleep(250);
             drive(heading(), 0.3, new DistanceStop(500));
-            panLeft(0);
+            panLeft(0, new TimeStop(time, 3000));
         } else if ((blueTeam && lcolor.blue() > lcolor.red())
                 || (!blueTeam && lcolor.red() > lcolor.blue())) {
-            panLeft(100);
+            panLeft(100, new TimeStop(time, 3000));
             drive(heading(), -0.15, new DistanceStop(250));
             sleep(250);
             drive(heading(), 0.3, new DistanceStop(500));
-            panRight(0);
+            panRight(0, new TimeStop(time, 3000));
         }
         tiltDownArm(300);
         tiltMotor.setPowerFloat();
@@ -429,7 +430,7 @@ public class EsAuto extends LinearOpMode {
         waitOneFullHardwareCycle();
     }
 
-    public void panRight(int panTarget) throws InterruptedException {
+    public void panRight(int panTarget, TimeStop t) throws InterruptedException {
 
 
         panMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
@@ -439,6 +440,7 @@ public class EsAuto extends LinearOpMode {
             if (panPos < panTarget) {
                 break;
             }
+            if(t.stop()) break;
             panMotor.setPower(-.18);
             waitOneFullHardwareCycle();
         }
@@ -447,7 +449,7 @@ public class EsAuto extends LinearOpMode {
         waitOneFullHardwareCycle();
     }
 
-    public void panLeft(int panTarget) throws InterruptedException {
+    public void panLeft(int panTarget, TimeStop t) throws InterruptedException {
 
 
         panMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
@@ -457,6 +459,7 @@ public class EsAuto extends LinearOpMode {
             if (panPos > panTarget) {
                 break;
             }
+            if(t.stop()) break;
             panMotor.setPower(0.18);
             waitOneFullHardwareCycle();
         }

@@ -219,9 +219,9 @@ public class EsAutoFast extends LinearOpMode {
 
         if (endPos == 1) {
             if (blueTeam) {
-                drive(85, 0.2, new DistanceStop(10000), new TimeStop(time, 10));
+                drive(85, 0.2, new DistanceStop(10000), new TimeStop(time, 10000));
             } else {
-                drive(-85, 0.2, new DistanceStop(10000), new TimeStop(time, 10));
+                drive(-85, 0.2, new DistanceStop(10000), new TimeStop(time, 10000));
             }
         }
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -237,7 +237,7 @@ public class EsAutoFast extends LinearOpMode {
                 waitOneFullHardwareCycle();
                 */
                 ///drive(angle (positive), power )
-                drive(100, .5, new DistanceStop(7000), new TimeStop(time, 10));
+                drive(100, .5, new DistanceStop(7000), new TimeStop(time, 10000));
 
             } else {
               /*  drive(-45, 0.2, 4500, 5, false);
@@ -248,7 +248,7 @@ public class EsAutoFast extends LinearOpMode {
                 lb.setTargetPosition(lt);
                 rb.setTargetPosition(rt);
                 waitOneFullHardwareCycle(); */
-                drive(-130, .5, new DistanceStop(7000), new TimeStop(time, 10));
+                drive(-130, .5, new DistanceStop(7000), new TimeStop(time, 10000));
             }
         }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
